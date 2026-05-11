@@ -7,6 +7,16 @@
 
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
+analyzer:
+  errors:
+    avoid_print: ignore
+    curly_braces_in_flow_control_structures: ignore
+    depend_on_referenced_packages: ignore
+    library_private_types_in_public_API: ignore
+    prefer_const_constructors_in_immutables: ignore
+    unnecessary_to_list_in_spreads: ignore
+    use_key_in_widget_constructors: ignore
+
 include: package:flutter_lints/flutter.yaml
 
 linter:
