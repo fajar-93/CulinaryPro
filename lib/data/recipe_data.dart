@@ -1,4 +1,5 @@
 import '../models/recipe_model.dart';
+import '../services/app_images.dart';
 
 class RecipeData {
   static List<Recipe> recipes = [
@@ -7,8 +8,7 @@ class RecipeData {
       id: '1',
       title: 'Nasi Goreng Spesial',
       description: 'Nasi goreng lezat dengan telur, ayam, dan bumbu rempah pilihan.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1512058560366-c80b2016334d?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.nasiGoreng,
       ingredients: [
         '2 piring nasi putih',
         '2 butir telur',
@@ -34,8 +34,7 @@ class RecipeData {
       id: '2',
       title: 'Sate Ayam Madura',
       description: 'Sate ayam empuk dengan bumbu kacang yang gurih dan kental.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1529692236671-f1f6cf9581f5?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.sateAyam,
       ingredients: [
         '500g fillet dada ayam',
         '200g kacang tanah goreng',
@@ -61,8 +60,7 @@ class RecipeData {
       title: 'Rendang Sapi',
       description:
           'Masakan daging sapi tradisional dengan bumbu rempah yang kaya rasa.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.rendangSapi,
       ingredients: [
         '500g daging sapi',
         '1 liter santan kental',
@@ -87,8 +85,7 @@ class RecipeData {
       title: 'Soto Ayam',
       description:
           'Sup ayam bening khas Indonesia dengan bumbu kunyit dan rempah aromatik.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.soto,
       ingredients: [
         '1 ekor ayam kampung',
         '2 batang serai',
@@ -112,8 +109,7 @@ class RecipeData {
       title: 'Sup Buntut',
       description:
           'Sup buntut sapi kaya kolagen dengan kuah bening yang gurih dan segar.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1635805737707-575885ab0820?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.supBuntut,
       ingredients: [
         '1 kg buntut sapi',
         'Wortel, kentang, tomat',
@@ -140,8 +136,7 @@ class RecipeData {
       title: 'Es Krim Kelapa Muda',
       description:
           'Es krim segar berbahan dasar kelapa muda dengan tekstur lembut dan creamy.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1488900128323-21503983a07e?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.esKrim,
       ingredients: [
         '500ml santan kelapa',
         '200ml susu kental manis',
@@ -166,8 +161,7 @@ class RecipeData {
       title: 'Klepon Pandan',
       description:
           'Kue tradisional bulat isi gula merah dengan balutan kelapa parut harum pandan.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.klepon,
       ingredients: [
         '250g tepung ketan',
         '200ml air pandan',
@@ -193,8 +187,7 @@ class RecipeData {
       title: 'Es Teh Tarik',
       description:
           'Minuman teh susu khas yang ditarik berulang untuk menghasilkan buih lembut.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.esTehTarik,
       ingredients: [
         '2 kantong teh hitam',
         '200ml air panas',
@@ -218,8 +211,7 @@ class RecipeData {
       title: 'Jus Alpukat Kocok',
       description:
           'Jus alpukat segar yang dikocok bersama susu dan coklat untuk sajian premium.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1546554137-f86b9593a222?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.jusAlpukat,
       ingredients: [
         '2 buah alpukat matang',
         '200ml susu segar',
@@ -245,8 +237,7 @@ class RecipeData {
       title: 'Pisang Goreng Crispy',
       description:
           'Pisang goreng renyah dengan balutan tepung crispy yang garing dan lezat.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1623428187425-d59f27a15c06?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.pisangGoreng,
       ingredients: [
         '5 buah pisang kepok',
         '150g tepung terigu',
@@ -271,8 +262,7 @@ class RecipeData {
       title: 'Tahu Crispy Pedas',
       description:
           'Tahu goreng renyah berlapis tepung bumbu yang pedas dan menggoyang lidah.',
-      imageUrl:
-          'https://images.unsplash.com/photo-1628294895950-9805252327bc?auto=format&fit=crop&q=80&w=800',
+      imageUrl: AppImages.tahuCrispy,
       ingredients: [
         '400g tahu putih',
         '100g tepung bumbu serbaguna',

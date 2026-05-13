@@ -10,8 +10,6 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Selector memastikan RecipeCard hanya rebuild ketika status favorit
-    // resep INI berubah, bukan setiap kali ada perubahan provider lain.
     final isFav = context.select<FavoriteProvider, bool>(
       (prov) => prov.isFavorite(recipe.id),
     );
@@ -51,15 +49,7 @@ class RecipeCard extends StatelessWidget {
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(24),
                       ),
-                      child: Image.network(
-                        recipe.imageUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.broken_image,
-                              color: Colors.grey, size: 48),
-                        ),
-                      ),
+                      child: _buildImage(recipe.imageUrl),
                     ),
                   ),
 
@@ -128,36 +118,37 @@ class RecipeCard extends StatelessWidget {
             ),
 
             // ─── Info Section ─────────────────────────────────────────────
-            Expanded(
-              flex: 1,
+            SizedBox(
+              height: 80,
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       recipe.title,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         const Icon(Icons.bar_chart,
-                            size: 16, color: Colors.orange),
+                            size: 15, color: Colors.orange),
                         const SizedBox(width: 4),
                         Text(
                           recipe.difficulty,
                           style: TextStyle(
                             color: Colors.grey[600],
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
                         ),
                         const Spacer(),
@@ -166,11 +157,11 @@ class RecipeCard extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.orange,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
                         ),
                         const Icon(Icons.chevron_right,
-                            color: Colors.orange, size: 18),
+                            color: Colors.orange, size: 16),
                       ],
                     ),
                   ],
@@ -180,6 +171,30 @@ class RecipeCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  /// Helper untuk menangani gambar local asset atau network URL
+  Widget _buildImage(String url) {
+    if (url.startsWith('assets/')) {
+      return Image.asset(
+        url,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    } else {
+      return Image.network(
+        url,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+      );
+    }
+  }
+
+  Widget _buildPlaceholder() {
+    return Container(
+      color: Colors.grey[200],
+      child: const Icon(Icons.broken_image, color: Colors.grey, size: 48),
     );
   }
 }
