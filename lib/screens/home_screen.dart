@@ -4,6 +4,7 @@ import '../providers/recipe_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../widgets/recipe_card.dart';
 import 'favorite_screen.dart';
+import 'category_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const List<Widget> _pages = [
     _HomeTab(),
     FavoriteScreen(),
-    _PlaceholderTab(icon: Icons.book_rounded, label: 'Resepku'),
+    CategoryScreen(),
     _PlaceholderTab(icon: Icons.person_rounded, label: 'Profil'),
   ];
 
@@ -67,8 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Favorit',
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.book_rounded),
-              label: 'Resepku',
+              icon: Icon(Icons.grid_view_rounded),
+              label: 'Kategori',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.person_rounded),

@@ -7,6 +7,12 @@ class Recipe {
   final List<String> instructions;
   final int durationMinutes;
   final String difficulty;
+
+  /// ID kategori resep — harus sesuai dengan `RecipeCategory.id`
+  /// di `CategoryData.categories`.
+  /// Nilai valid: 'all', 'main_course', 'dessert', 'beverage', 'soup', 'snack'
+  final String category;
+
   bool isFavorite;
 
   Recipe({
@@ -18,6 +24,7 @@ class Recipe {
     required this.instructions,
     required this.durationMinutes,
     required this.difficulty,
+    this.category = 'main_course',
     this.isFavorite = false,
   });
 }
