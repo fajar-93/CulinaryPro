@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/recipe_provider.dart';
+import 'providers/favorite_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
 import 'services/app_theme.dart';
@@ -10,6 +11,7 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
       ],
       child: const RecipeApp(),
     ),

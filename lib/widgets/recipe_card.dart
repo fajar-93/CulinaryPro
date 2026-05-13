@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/recipe_model.dart';
-import '../providers/recipe_provider.dart';
+import '../providers/favorite_provider.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
@@ -10,6 +10,12 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Selector memastikan RecipeCard hanya rebuild ketika status favorit
+    // resep INI berubah, bukan setiap kali ada perubahan provider lain.
+    final isFav = context.select<FavoriteProvider, bool>(
+      (prov) => prov.isFavorite(recipe.id),
+    );
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(
@@ -33,60 +39,85 @@ class RecipeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Section
+            // ─── Image Section ───────────────────────────────────────────
             Expanded(
               flex: 3,
               child: Stack(
+                fit: StackFit.expand,
                 children: [
                   Hero(
                     tag: recipe.id,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                        image: DecorationImage(
-                          image: NetworkImage(recipe.imageUrl),
-                          fit: BoxFit.cover,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(24),
+                      ),
+                      child: Image.network(
+                        recipe.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.broken_image,
+                              color: Colors.grey, size: 48),
                         ),
                       ),
                     ),
                   ),
+
+                  // Tombol Favorit
                   Positioned(
                     top: 15,
                     right: 15,
                     child: GestureDetector(
                       onTap: () {
-                        context.read<RecipeProvider>().toggleFavorite(recipe.id);
+                        context.read<FavoriteProvider>().toggleFavorite(recipe);
                       },
-                      child: Container(
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color.fromRGBO(255, 255, 255, 0.9),
+                          color: isFav
+                              ? Colors.red.withAlpha(230)
+                              : const Color.fromRGBO(255, 255, 255, 0.9),
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: isFav
+                                  ? Colors.red.withAlpha(80)
+                                  : Colors.black12,
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Icon(
-                          recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: recipe.isFavorite ? Colors.red : Colors.grey,
+                          isFav ? Icons.favorite : Icons.favorite_border,
+                          color: isFav ? Colors.white : Colors.grey,
                           size: 20,
                         ),
                       ),
                     ),
                   ),
+
+                  // Badge durasi
                   Positioned(
                     bottom: 15,
                     left: 15,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: const Color.fromRGBO(0, 0, 0, 0.6),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.timer_outlined, color: Colors.white, size: 14),
+                          const Icon(Icons.timer_outlined,
+                              color: Colors.white, size: 14),
                           const SizedBox(width: 4),
                           Text(
                             '${recipe.durationMinutes} min',
-                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
                           ),
                         ],
                       ),
@@ -95,11 +126,13 @@ class RecipeCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Info Section
+
+            // ─── Info Section ─────────────────────────────────────────────
             Expanded(
               flex: 1,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -117,7 +150,8 @@ class RecipeCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.bar_chart, size: 16, color: Colors.orange),
+                        const Icon(Icons.bar_chart,
+                            size: 16, color: Colors.orange),
                         const SizedBox(width: 4),
                         Text(
                           recipe.difficulty,
@@ -135,7 +169,8 @@ class RecipeCard extends StatelessWidget {
                             fontSize: 14,
                           ),
                         ),
-                        const Icon(Icons.chevron_right, color: Colors.orange, size: 18),
+                        const Icon(Icons.chevron_right,
+                            color: Colors.orange, size: 18),
                       ],
                     ),
                   ],

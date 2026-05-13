@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/recipe_model.dart';
 import '../data/recipe_data.dart';
 
@@ -6,6 +6,10 @@ class RecipeProvider with ChangeNotifier {
   final List<Recipe> _recipes = RecipeData.recipes;
   String _searchQuery = '';
 
+  /// Seluruh daftar resep tanpa filter — dipakai oleh FavoriteProvider.
+  List<Recipe> get allRecipes => List.unmodifiable(_recipes);
+
+  /// Daftar resep yang sudah difilter berdasarkan query pencarian.
   List<Recipe> get recipes {
     if (_searchQuery.isEmpty) {
       return [..._recipes];
@@ -14,18 +18,6 @@ class RecipeProvider with ChangeNotifier {
           .where((recipe) =>
               recipe.title.toLowerCase().contains(_searchQuery.toLowerCase()))
           .toList();
-    }
-  }
-
-  List<Recipe> get favoriteRecipes {
-    return _recipes.where((recipe) => recipe.isFavorite).toList();
-  }
-
-  void toggleFavorite(String id) {
-    final index = _recipes.indexWhere((recipe) => recipe.id == id);
-    if (index >= 0) {
-      _recipes[index].isFavorite = !_recipes[index].isFavorite;
-      notifyListeners();
     }
   }
 

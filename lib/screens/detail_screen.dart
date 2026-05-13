@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/recipe_provider.dart';
+import '../providers/favorite_provider.dart';
 
 class DetailScreen extends StatelessWidget {
   const DetailScreen({super.key});
@@ -8,13 +9,18 @@ class DetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final recipeId = ModalRoute.of(context)!.settings.arguments as String;
-    final recipe = context.watch<RecipeProvider>().findById(recipeId);
+    final recipe = context.read<RecipeProvider>().findById(recipeId);
+
+    // Selector memastikan hanya ikon favorit yang rebuild saat state berubah.
+    final isFav = context.select<FavoriteProvider, bool>(
+      (prov) => prov.isFavorite(recipeId),
+    );
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          // Elegant Header with Back Button
+          // ─── Elegant Header ──────────────────────────────────────────────
           SliverAppBar(
             expandedHeight: 350,
             pinned: true,
@@ -32,14 +38,39 @@ class DetailScreen extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: CircleAvatar(
-                  backgroundColor: const Color.fromRGBO(255, 255, 255, 0.9),
+                  backgroundColor: isFav
+                      ? Colors.red.withAlpha(230)
+                      : const Color.fromRGBO(255, 255, 255, 0.9),
                   child: IconButton(
-                    icon: Icon(
-                      recipe.isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: recipe.isFavorite ? Colors.red : Colors.black,
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      transitionBuilder: (child, animation) => ScaleTransition(
+                        scale: animation,
+                        child: child,
+                      ),
+                      child: Icon(
+                        isFav ? Icons.favorite : Icons.favorite_border,
+                        key: ValueKey<bool>(isFav),
+                        color: isFav ? Colors.white : Colors.black,
+                      ),
                     ),
                     onPressed: () {
-                      context.read<RecipeProvider>().toggleFavorite(recipe.id);
+                      context.read<FavoriteProvider>().toggleFavorite(recipe);
+
+                      final message =
+                          isFav ? 'Dihapus dari favorit' : 'Ditambahkan ke favorit';
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(message),
+                          duration: const Duration(seconds: 1),
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor:
+                              isFav ? Colors.grey[700] : Colors.orange,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ),
@@ -51,12 +82,17 @@ class DetailScreen extends StatelessWidget {
                 child: Image.network(
                   recipe.imageUrl,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.broken_image,
+                        color: Colors.grey, size: 64),
+                  ),
                 ),
               ),
             ),
           ),
 
-          // Content Section
+          // ─── Content Section ─────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Container(
               transform: Matrix4.translationValues(0, -30, 0),
@@ -65,7 +101,8 @@ class DetailScreen extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -81,7 +118,8 @@ class DetailScreen extends StatelessWidget {
                     const SizedBox(height: 15),
                     Row(
                       children: [
-                        _buildBadge(Icons.timer_outlined, '${recipe.durationMinutes} Menit'),
+                        _buildBadge(Icons.timer_outlined,
+                            '${recipe.durationMinutes} Menit'),
                         const SizedBox(width: 15),
                         _buildBadge(Icons.bar_chart, recipe.difficulty),
                       ],
@@ -92,9 +130,7 @@ class DetailScreen extends StatelessWidget {
                     const Text(
                       'Deskripsi',
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -111,9 +147,7 @@ class DetailScreen extends StatelessWidget {
                     const Text(
                       'Bahan-bahan',
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 15),
                     ListView.builder(
@@ -131,7 +165,8 @@ class DetailScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.check_circle, color: Colors.orange, size: 20),
+                              const Icon(Icons.check_circle,
+                                  color: Colors.orange, size: 20),
                               const SizedBox(width: 15),
                               Expanded(
                                 child: Text(
@@ -150,9 +185,7 @@ class DetailScreen extends StatelessWidget {
                     const Text(
                       'Langkah Memasak',
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 15),
                     ListView.builder(
@@ -198,6 +231,7 @@ class DetailScreen extends StatelessWidget {
                         );
                       },
                     ),
+
                     const SizedBox(height: 50),
                   ],
                 ),
