@@ -84,9 +84,9 @@ class _CategoryBody extends StatelessWidget {
             ),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3,
-              crossAxisSpacing: 14,
-              mainAxisSpacing: 14,
-              childAspectRatio: 0.85,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.9,
             ),
           ),
         ),
@@ -274,7 +274,7 @@ class _CategoryCard extends StatelessWidget {
             // Icon container
             AnimatedContainer(
               duration: const Duration(milliseconds: 250),
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(11),
               decoration: BoxDecoration(
                 color: isSelected
                     ? Colors.white.withAlpha(40)
@@ -283,11 +283,11 @@ class _CategoryCard extends StatelessWidget {
               ),
               child: Icon(
                 category.icon,
-                size: 28,
+                size: 24,
                 color: isSelected ? Colors.white : category.iconColor,
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             // Label
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -297,11 +297,11 @@ class _CategoryCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight:
                       isSelected ? FontWeight.bold : FontWeight.w500,
                   color: isSelected ? Colors.white : Colors.black87,
-                  height: 1.3,
+                  height: 1.2,
                 ),
               ),
             ),

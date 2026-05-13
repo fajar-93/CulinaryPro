@@ -5,6 +5,7 @@ import 'providers/favorite_provider.dart';
 import 'providers/category_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/app_theme.dart';
 
 void main() {
@@ -29,11 +30,13 @@ class RecipeApp extends StatelessWidget {
       title: 'RecipeApp',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      initialRoute: '/',
+      initialRoute: '/splash',
       routes: {
+        '/splash': (context) => const SplashScreen(),
         '/': (context) => const HomeScreen(),
         '/detail': (context) => const DetailScreen(),
       },
     );
   }
 }
+
