@@ -6,6 +6,7 @@ import '../providers/theme_provider.dart';
 import '../widgets/recipe_card.dart';
 import 'favorite_screen.dart';
 import 'category_screen.dart';
+import 'bookmark_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,8 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
   static const List<Widget> _pages = [
     _HomeTab(),
     FavoriteScreen(),
+    BookmarkScreen(),
     CategoryScreen(),
-    _PlaceholderTab(icon: Icons.person_rounded, label: 'Profil'),
   ];
 
   @override
@@ -69,12 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Favorit',
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.grid_view_rounded),
-              label: 'Kategori',
+              icon: Icon(Icons.bookmark_rounded),
+              label: 'Bookmark',
             ),
             const BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded),
-              label: 'Profil',
+              icon: Icon(Icons.grid_view_rounded),
+              label: 'Kategori',
             ),
           ],
         ),
@@ -224,7 +225,7 @@ class _HomeTab extends StatelessWidget {
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
-                          child: RecipeCard(recipe: recipes[index]),
+                          child: RecipeCard(recipe: recipes[index], heroPrefix: 'home'),
                         );
                       },
                     ),
@@ -260,37 +261,3 @@ class _HomeTab extends StatelessWidget {
   }
 }
 
-// ─── Placeholder Tab ──────────────────────────────────────────────────────────
-
-class _PlaceholderTab extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const _PlaceholderTab({required this.icon, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 64, color: Colors.orange[200]),
-            const SizedBox(height: 16),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.grey[500],
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Segera hadir',
-              style: TextStyle(color: Colors.grey[400]),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

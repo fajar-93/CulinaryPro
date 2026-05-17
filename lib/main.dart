@@ -4,6 +4,7 @@ import 'providers/recipe_provider.dart';
 import 'providers/favorite_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/bookmark_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
 import 'screens/splash_screen.dart';
@@ -17,6 +18,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => BookmarkProvider()),
       ],
       child: const RecipeApp(),
     ),

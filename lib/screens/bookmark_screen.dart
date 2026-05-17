@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/favorite_provider.dart';
+import '../providers/bookmark_provider.dart';
 import '../providers/recipe_provider.dart';
 import '../widgets/recipe_card.dart';
 
-class FavoriteScreen extends StatelessWidget {
-  const FavoriteScreen({super.key});
+class BookmarkScreen extends StatelessWidget {
+  const BookmarkScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final favoriteProvider = context.watch<FavoriteProvider>();
+    final bookmarkProvider = context.watch<BookmarkProvider>();
     final recipeProvider = context.watch<RecipeProvider>();
-    final favoriteRecipes = favoriteProvider.getFavoriteRecipes(
+    final bookmarkedRecipes = bookmarkProvider.getBookmarkedRecipes(
       recipeProvider.allRecipes,
     );
 
@@ -22,25 +22,26 @@ class FavoriteScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '${favoriteProvider.favoriteCount} resep tersimpan',
+              '${bookmarkProvider.bookmarkCount} resep disimpan',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[600],
                   ),
             ),
             Text(
-              'Resep Favorit',
+              'Bookmark',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
                   ),
             ),
           ],
         ),
         actions: [
-          if (favoriteProvider.favoriteCount > 0)
+          if (bookmarkProvider.bookmarkCount > 0)
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: TextButton.icon(
-                onPressed: () => _confirmClearAll(context, favoriteProvider),
+                onPressed: () => _confirmClearAll(context, bookmarkProvider),
                 icon: const Icon(Icons.delete_sweep_outlined,
                     color: Colors.red, size: 20),
                 label: const Text(
@@ -52,16 +53,19 @@ class FavoriteScreen extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: favoriteRecipes.isEmpty
+        child: bookmarkedRecipes.isEmpty
             ? _buildEmptyState(context)
             : ListView.builder(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 20, vertical: 10),
-                itemCount: favoriteRecipes.length,
+                itemCount: bookmarkedRecipes.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: RecipeCard(recipe: favoriteRecipes[index], heroPrefix: 'fav'),
+                    child: RecipeCard(
+                      recipe: bookmarkedRecipes[index],
+                      heroPrefix: 'bookmark',
+                    ),
                   );
                 },
               ),
@@ -78,18 +82,18 @@ class FavoriteScreen extends StatelessWidget {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.orange.withAlpha(30) : Colors.orange[50],
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.blue.withAlpha(30) : Colors.blue[50],
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.favorite_border_rounded,
+              Icons.bookmark_border_rounded,
               size: 60,
-              color: Colors.orange[300],
+              color: Colors.blue[300],
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            'Belum Ada Favorit',
+            'Belum Ada Bookmark',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
@@ -97,27 +101,12 @@ class FavoriteScreen extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Tap ikon ❤️ pada resep\nuntuk menyimpannya di sini',
+            'Tap ikon Bookmark pada resep\nuntuk membacanya nanti',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.grey[500],
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[500],
               fontSize: 15,
               height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 32),
-          ElevatedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.explore_outlined),
-            label: const Text('Jelajahi Resep'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
             ),
           ),
         ],
@@ -126,7 +115,7 @@ class FavoriteScreen extends StatelessWidget {
   }
 
   void _confirmClearAll(
-      BuildContext context, FavoriteProvider favoriteProvider) {
+      BuildContext context, BookmarkProvider bookmarkProvider) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -134,11 +123,11 @@ class FavoriteScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
         ),
         title: const Text(
-          'Hapus Semua Favorit?',
+          'Hapus Semua Bookmark?',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: const Text(
-          'Semua resep favorit akan dihapus. Tindakan ini tidak dapat dibatalkan.',
+          'Semua resep bookmark akan dihapus. Tindakan ini tidak dapat dibatalkan.',
         ),
         actions: [
           TextButton(
@@ -148,11 +137,11 @@ class FavoriteScreen extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              favoriteProvider.clearFavorites();
+              bookmarkProvider.clearBookmarks();
               Navigator.of(ctx).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Semua favorit telah dihapus'),
+                  content: Text('Semua bookmark telah dihapus'),
                   backgroundColor: Colors.red,
                   behavior: SnackBarBehavior.floating,
                 ),

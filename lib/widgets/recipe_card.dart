@@ -2,23 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/recipe_model.dart';
 import '../providers/favorite_provider.dart';
+import '../providers/bookmark_provider.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
+  final String heroPrefix;
 
-  const RecipeCard({super.key, required this.recipe});
+  const RecipeCard({super.key, required this.recipe, this.heroPrefix = 'card'});
 
   @override
   Widget build(BuildContext context) {
     final isFav = context.select<FavoriteProvider, bool>(
       (prov) => prov.isFavorite(recipe.id),
     );
+    final isBookmarked = context.select<BookmarkProvider, bool>(
+      (prov) => prov.isBookmarked(recipe.id),
+    );
 
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(
           '/detail',
-          arguments: recipe.id,
+          arguments: {'id': recipe.id, 'prefix': heroPrefix},
         );
       },
       child: Container(
@@ -44,7 +49,7 @@ class RecipeCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Hero(
-                    tag: recipe.id,
+                    tag: '${heroPrefix}_${recipe.id}',
                     child: ClipRRect(
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(24),
@@ -84,6 +89,43 @@ class RecipeCard extends StatelessWidget {
                         child: Icon(
                           isFav ? Icons.favorite : Icons.favorite_border,
                           color: isFav ? Colors.white : Colors.grey,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Tombol Bookmark
+                  Positioned(
+                    top: 15,
+                    right: 65,
+                    child: GestureDetector(
+                      onTap: () {
+                        context.read<BookmarkProvider>().toggleBookmark(recipe);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: isBookmarked
+                              ? Colors.blue.withAlpha(230)
+                              : Theme.of(context).brightness == Brightness.dark 
+                                  ? const Color.fromRGBO(50, 50, 50, 0.9)
+                                  : const Color.fromRGBO(255, 255, 255, 0.9),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: isBookmarked
+                                  ? Colors.blue.withAlpha(80)
+                                  : Colors.black12,
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                          color: isBookmarked ? Colors.white : Colors.grey,
                           size: 20,
                         ),
                       ),

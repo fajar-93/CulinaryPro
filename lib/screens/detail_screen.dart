@@ -2,18 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/recipe_provider.dart';
 import '../providers/favorite_provider.dart';
+import '../providers/bookmark_provider.dart';
 
 class DetailScreen extends StatelessWidget {
   const DetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final recipeId = ModalRoute.of(context)!.settings.arguments as String;
+    final args = ModalRoute.of(context)!.settings.arguments;
+    String recipeId;
+    String heroPrefix = 'card';
+    
+    if (args is Map<String, dynamic>) {
+      recipeId = args['id'] as String;
+      heroPrefix = args['prefix'] as String;
+    } else {
+      recipeId = args as String;
+    }
+
     final recipe = context.read<RecipeProvider>().findById(recipeId);
 
-    // Selector memastikan hanya ikon favorit yang rebuild saat state berubah.
+    // Selector memastikan hanya ikon yang rebuild saat state berubah.
     final isFav = context.select<FavoriteProvider, bool>(
       (prov) => prov.isFavorite(recipeId),
+    );
+    final isBookmarked = context.select<BookmarkProvider, bool>(
+      (prov) => prov.isBookmarked(recipeId),
     );
 
     return Scaffold(
@@ -37,6 +51,48 @@ class DetailScreen extends StatelessWidget {
               ),
             ),
             actions: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: CircleAvatar(
+                  backgroundColor: isBookmarked
+                      ? Colors.blue.withAlpha(230)
+                      : Theme.of(context).brightness == Brightness.dark 
+                          ? const Color.fromRGBO(50, 50, 50, 0.9)
+                          : const Color.fromRGBO(255, 255, 255, 0.9),
+                  child: IconButton(
+                    icon: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      transitionBuilder: (child, animation) => ScaleTransition(
+                        scale: animation,
+                        child: child,
+                      ),
+                      child: Icon(
+                        isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                        key: ValueKey<bool>(isBookmarked),
+                        color: isBookmarked ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                      ),
+                    ),
+                    onPressed: () {
+                      context.read<BookmarkProvider>().toggleBookmark(recipe);
+
+                      final message =
+                          isBookmarked ? 'Dihapus dari bookmark' : 'Disimpan ke bookmark';
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(message),
+                          duration: const Duration(seconds: 1),
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor:
+                              isBookmarked ? Colors.grey[700] : Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: CircleAvatar(
@@ -82,7 +138,7 @@ class DetailScreen extends StatelessWidget {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Hero(
-                tag: recipe.id,
+                tag: '${heroPrefix}_${recipe.id}',
                 child: Image.network(
                   recipe.imageUrl,
                   fit: BoxFit.cover,

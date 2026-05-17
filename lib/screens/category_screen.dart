@@ -141,7 +141,7 @@ class _CategoryBody extends StatelessWidget {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) => Padding(
                       padding: const EdgeInsets.only(bottom: 16),
-                      child: RecipeCard(recipe: filteredRecipes[index]),
+                      child: RecipeCard(recipe: filteredRecipes[index], heroPrefix: 'category'),
                     ),
                     childCount: filteredRecipes.length,
                   ),
