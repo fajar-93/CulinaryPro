@@ -13,7 +13,6 @@ class Recipe {
   /// Nilai valid: 'all', 'main_course', 'dessert', 'beverage', 'soup', 'snack'
   final String category;
 
-  bool isFavorite;
 
   Recipe({
     required this.id,
@@ -25,6 +24,5 @@ class Recipe {
     required this.durationMinutes,
     required this.difficulty,
     this.category = 'main_course',
-    this.isFavorite = false,
   });
 }
