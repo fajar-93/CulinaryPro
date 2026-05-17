@@ -11,9 +11,7 @@ class CategoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
         toolbarHeight: 80,
         elevation: 0,
         title: Column(
@@ -29,7 +27,7 @@ class CategoryScreen extends StatelessWidget {
               'Kategori Resep',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
                   ),
             ),
           ],
@@ -103,10 +101,10 @@ class _CategoryBody extends StatelessWidget {
                   children: [
                     Text(
                       categoryProvider.selectedCategory.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
                       ),
                     ),
                     Text(
@@ -252,7 +250,7 @@ class _CategoryCard extends StatelessWidget {
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
-          color: isSelected ? category.iconColor : Colors.white,
+          color: isSelected ? category.iconColor : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? category.iconColor : Colors.grey.withAlpha(30),
@@ -300,7 +298,9 @@ class _CategoryCard extends StatelessWidget {
                   fontSize: 11,
                   fontWeight:
                       isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? Colors.white : Colors.black87,
+                  color: isSelected 
+                      ? Colors.white 
+                      : (Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87),
                   height: 1.2,
                 ),
               ),
@@ -335,12 +335,12 @@ class _EmptyCategory extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'Belum Ada Resep',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
             ),
           ),
           const SizedBox(height: 8),

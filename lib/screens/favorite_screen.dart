@@ -16,7 +16,6 @@ class FavoriteScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         toolbarHeight: 80,
         title: Column(
@@ -79,7 +78,7 @@ class FavoriteScreen extends StatelessWidget {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: Colors.orange[50],
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.orange.withAlpha(30) : Colors.orange[50],
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -93,7 +92,7 @@ class FavoriteScreen extends StatelessWidget {
             'Belum Ada Favorit',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
                 ),
           ),
           const SizedBox(height: 10),

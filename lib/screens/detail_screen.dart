@@ -17,7 +17,6 @@ class DetailScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
           // ─── Elegant Header ──────────────────────────────────────────────
@@ -27,9 +26,12 @@ class DetailScreen extends StatelessWidget {
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
-                backgroundColor: const Color.fromRGBO(255, 255, 255, 0.9),
+                backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                    ? const Color.fromRGBO(50, 50, 50, 0.9)
+                    : const Color.fromRGBO(255, 255, 255, 0.9),
                 child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
+                  icon: Icon(Icons.arrow_back, 
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -40,7 +42,9 @@ class DetailScreen extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: isFav
                       ? Colors.red.withAlpha(230)
-                      : const Color.fromRGBO(255, 255, 255, 0.9),
+                      : Theme.of(context).brightness == Brightness.dark 
+                          ? const Color.fromRGBO(50, 50, 50, 0.9)
+                          : const Color.fromRGBO(255, 255, 255, 0.9),
                   child: IconButton(
                     icon: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
@@ -51,7 +55,7 @@ class DetailScreen extends StatelessWidget {
                       child: Icon(
                         isFav ? Icons.favorite : Icons.favorite_border,
                         key: ValueKey<bool>(isFav),
-                        color: isFav ? Colors.white : Colors.black,
+                        color: isFav ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
                       ),
                     ),
                     onPressed: () {
@@ -94,12 +98,12 @@ class DetailScreen extends StatelessWidget {
 
           // ─── Content Section ─────────────────────────────────────────────
           SliverToBoxAdapter(
-            child: Container(
-              transform: Matrix4.translationValues(0, -30, 0),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              ),
+              child: Container(
+                transform: Matrix4.translationValues(0, -30, 0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                ),
               child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
@@ -109,19 +113,19 @@ class DetailScreen extends StatelessWidget {
                     // Title and Basic Info
                     Text(
                       recipe.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 15),
                     Row(
                       children: [
-                        _buildBadge(Icons.timer_outlined,
+                        _buildBadge(context, Icons.timer_outlined,
                             '${recipe.durationMinutes} Menit'),
                         const SizedBox(width: 15),
-                        _buildBadge(Icons.bar_chart, recipe.difficulty),
+                        _buildBadge(context, Icons.bar_chart, recipe.difficulty),
                       ],
                     ),
 
@@ -137,7 +141,7 @@ class DetailScreen extends StatelessWidget {
                       recipe.description,
                       style: TextStyle(
                         fontSize: 16,
-                        color: Colors.grey[600],
+                        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[600],
                         height: 1.5,
                       ),
                     ),
@@ -160,7 +164,7 @@ class DetailScreen extends StatelessWidget {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
-                            color: Colors.orange[50],
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.orange.withAlpha(30) : Colors.orange[50],
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: Row(
@@ -243,11 +247,11 @@ class DetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBadge(IconData icon, String label) {
+  Widget _buildBadge(BuildContext context, IconData icon, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[100],
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

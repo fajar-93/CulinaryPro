@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/recipe_provider.dart';
 import '../providers/favorite_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/recipe_card.dart';
 import 'favorite_screen.dart';
 import 'category_screen.dart';
@@ -51,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
           selectedItemColor: Colors.orange,
           unselectedItemColor: Colors.grey,
           type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0,
           items: [
             const BottomNavigationBarItem(
@@ -93,7 +94,6 @@ class _HomeTab extends StatelessWidget {
     final recipes = recipeProvider.recipes;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         toolbarHeight: 80,
         title: Column(
@@ -102,7 +102,9 @@ class _HomeTab extends StatelessWidget {
             Text(
               'Halo, Foodie!',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Colors.grey[400] 
+                        : Colors.grey[600],
                   ),
             ),
             Text(
@@ -115,9 +117,27 @@ class _HomeTab extends StatelessWidget {
         ),
         actions: [
           Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return IconButton(
+                  icon: Icon(
+                    themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                    color: Colors.orange,
+                  ),
+                  onPressed: () {
+                    themeProvider.toggleTheme();
+                  },
+                );
+              },
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.only(right: 16),
             child: CircleAvatar(
-              backgroundColor: Colors.orange[50],
+              backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                  ? Colors.orange.withAlpha(50) 
+                  : Colors.orange[50],
               child: const Icon(Icons.notifications_outlined,
                   color: Colors.orange),
             ),
@@ -133,16 +153,24 @@ class _HomeTab extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey[100],
+                  color: Theme.of(context).brightness == Brightness.dark 
+                      ? Colors.grey[800] 
+                      : Colors.grey[100],
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: TextField(
                   onChanged: recipeProvider.updateSearchQuery,
-                  decoration: const InputDecoration(
+                  style: TextStyle(
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
+                  ),
+                  decoration: InputDecoration(
                     hintText: 'Cari resep favoritmu...',
-                    prefixIcon: Icon(Icons.search, color: Colors.orange),
+                    hintStyle: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                    prefixIcon: const Icon(Icons.search, color: Colors.orange),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 15),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
                   ),
                 ),
               ),
@@ -154,11 +182,11 @@ class _HomeTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               child: Row(
                 children: [
-                  _buildCategoryItem('Semua', true),
-                  _buildCategoryItem('Sarapan', false),
-                  _buildCategoryItem('Makan Siang', false),
-                  _buildCategoryItem('Makan Malam', false),
-                  _buildCategoryItem('Camilan', false),
+                  _buildCategoryItem(context, 'Semua', true),
+                  _buildCategoryItem(context, 'Sarapan', false),
+                  _buildCategoryItem(context, 'Makan Siang', false),
+                  _buildCategoryItem(context, 'Makan Malam', false),
+                  _buildCategoryItem(context, 'Camilan', false),
                 ],
               ),
             ),
@@ -207,18 +235,23 @@ class _HomeTab extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryItem(String title, bool isSelected) {
+  Widget _buildCategoryItem(BuildContext context, String title, bool isSelected) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
-        color: isSelected ? Colors.orange : Colors.grey[100],
+        color: isSelected 
+            ? Colors.orange 
+            : (isDark ? Colors.grey[800] : Colors.grey[100]),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         title,
         style: TextStyle(
-          color: isSelected ? Colors.white : Colors.black87,
+          color: isSelected 
+              ? Colors.white 
+              : (isDark ? Colors.white70 : Colors.black87),
           fontWeight:
               isSelected ? FontWeight.bold : FontWeight.normal,
         ),
@@ -238,7 +271,6 @@ class _PlaceholderTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

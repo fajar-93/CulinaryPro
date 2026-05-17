@@ -24,7 +24,7 @@ class RecipeCard extends StatelessWidget {
       child: Container(
         height: 280,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardTheme.color ?? Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -67,7 +67,9 @@ class RecipeCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: isFav
                               ? Colors.red.withAlpha(230)
-                              : const Color.fromRGBO(255, 255, 255, 0.9),
+                              : Theme.of(context).brightness == Brightness.dark 
+                                  ? const Color.fromRGBO(50, 50, 50, 0.9)
+                                  : const Color.fromRGBO(255, 255, 255, 0.9),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -130,10 +132,10 @@ class RecipeCard extends StatelessWidget {
                   children: [
                     Text(
                       recipe.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
