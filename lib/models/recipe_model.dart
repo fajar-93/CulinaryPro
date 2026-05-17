@@ -12,6 +12,7 @@ class Recipe {
   /// di `CategoryData.categories`.
   /// Nilai valid: 'all', 'main_course', 'dessert', 'beverage', 'soup', 'snack'
   final String category;
+  final String? youtubeId;
 
 
   Recipe({
@@ -24,5 +25,6 @@ class Recipe {
     required this.durationMinutes,
     required this.difficulty,
     this.category = 'main_course',
+    this.youtubeId,
   });
 }

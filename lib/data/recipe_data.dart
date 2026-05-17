@@ -29,6 +29,7 @@ class RecipeData {
       durationMinutes: 20,
       difficulty: 'Mudah',
       category: 'main_course',
+      youtubeId: 'b7O8j6T-Hsw',
     ),
     Recipe(
       id: '2',
@@ -77,6 +78,7 @@ class RecipeData {
       durationMinutes: 180,
       difficulty: 'Sulit',
       category: 'main_course',
+      youtubeId: 'qQjH8l9V6eA',
     ),
 
     // ── Sup ─────────────────────────────────────────────────────────────────
@@ -281,6 +283,7 @@ class RecipeData {
       durationMinutes: 20,
       difficulty: 'Mudah',
       category: 'snack',
+      youtubeId: '9z8X4-f446I',
     ),
   ];
 }

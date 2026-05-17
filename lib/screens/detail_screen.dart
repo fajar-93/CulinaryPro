@@ -3,9 +3,17 @@ import 'package:provider/provider.dart';
 import '../providers/recipe_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/bookmark_provider.dart';
+import '../widgets/recipe_video_player.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key});
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  bool _isVideoPlaying = false;
 
   @override
   Widget build(BuildContext context) {
@@ -137,18 +145,48 @@ class DetailScreen extends StatelessWidget {
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
-              background: Hero(
-                tag: '${heroPrefix}_${recipe.id}',
-                child: Image.network(
-                  recipe.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image,
-                        color: Colors.grey, size: 64),
-                  ),
-                ),
-              ),
+              background: _isVideoPlaying && recipe.youtubeId != null
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: kToolbarHeight + 24), // Offset for AppBar & StatusBar
+                      child: RecipeVideoPlayer(youtubeId: recipe.youtubeId!),
+                    )
+                  : Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Hero(
+                          tag: '${heroPrefix}_${recipe.id}',
+                          child: Image.network(
+                            recipe.imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image,
+                                  color: Colors.grey, size: 64),
+                            ),
+                          ),
+                        ),
+                        if (recipe.youtubeId != null)
+                          Center(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isVideoPlaying = true;
+                                });
+                              },
+                              child: Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withAlpha(150),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.white, width: 2),
+                                ),
+                                child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
             ),
           ),
 
