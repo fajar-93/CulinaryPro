@@ -6,6 +6,7 @@ import '../providers/theme_provider.dart';
 import '../widgets/recipe_card.dart';
 import '../providers/auth_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
+import 'package:firebase_core/firebase_core.dart';
 import 'favorite_screen.dart';
 import 'category_screen.dart';
 import 'bookmark_screen.dart';
@@ -123,6 +124,17 @@ class _HomeTabState extends State<_HomeTab> {
       }
     }
 
+    String getUserName() {
+      try {
+        if (Firebase.apps.isNotEmpty) {
+          return FirebaseAuth.instance.currentUser?.displayName ?? 'Foodie';
+        }
+      } catch (e) {
+        debugPrint('Error getting display name: $e');
+      }
+      return 'Foodie';
+    }
+
     final categoryId = getSelectedCategoryId();
     final recipes = categoryId == 'all' 
         ? allRecipes 
@@ -135,7 +147,7 @@ class _HomeTabState extends State<_HomeTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Halo, ${FirebaseAuth.instance.currentUser?.displayName ?? 'Foodie'}!',
+              'Halo, ${getUserName()}!',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).brightness == Brightness.dark 
                         ? Colors.grey[400] 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/app_images.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -78,10 +79,15 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     
-    // Pengecekan status login pengguna secara real-time sebelum berpindah halaman
-    if (FirebaseAuth.instance.currentUser != null) {
-      Navigator.of(context).pushReplacementNamed('/');
-    } else {
+    // Pengecekan status login secara aman dengan penanganan fallback jika Firebase belum diinisialisasi
+    try {
+      if (Firebase.apps.isNotEmpty && FirebaseAuth.instance.currentUser != null) {
+        Navigator.of(context).pushReplacementNamed('/');
+      } else {
+        Navigator.of(context).pushReplacementNamed('/login');
+      }
+    } catch (e) {
+      debugPrint('Firebase Auth error on splash: $e');
       Navigator.of(context).pushReplacementNamed('/login');
     }
   }
