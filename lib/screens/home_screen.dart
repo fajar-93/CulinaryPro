@@ -10,6 +10,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'favorite_screen.dart';
 import 'category_screen.dart';
 import 'bookmark_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     FavoriteScreen(),
     BookmarkScreen(),
     CategoryScreen(),
+    ProfileScreen(),
   ];
 
   @override
@@ -79,6 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
             const BottomNavigationBarItem(
               icon: Icon(Icons.grid_view_rounded),
               label: 'Kategori',
+            ),
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded),
+              label: 'Profil',
             ),
           ],
         ),
