@@ -28,7 +28,7 @@ class RecipeData {
       ],
       durationMinutes: 20,
       difficulty: 'Mudah',
-      category: 'main_course',
+      category: 'sarapan',
       youtubeId: 'b7O8j6T-Hsw',
     ),
     Recipe(
@@ -54,7 +54,7 @@ class RecipeData {
       ],
       durationMinutes: 45,
       difficulty: 'Menengah',
-      category: 'main_course',
+      category: 'makan_siang',
     ),
     Recipe(
       id: '3',
@@ -77,7 +77,7 @@ class RecipeData {
       ],
       durationMinutes: 180,
       difficulty: 'Sulit',
-      category: 'main_course',
+      category: 'makan_siang',
       youtubeId: 'qQjH8l9V6eA',
     ),
 
@@ -104,7 +104,7 @@ class RecipeData {
       ],
       durationMinutes: 60,
       difficulty: 'Menengah',
-      category: 'soup',
+      category: 'makan_malam',
     ),
     Recipe(
       id: '5',
@@ -129,7 +129,7 @@ class RecipeData {
       ],
       durationMinutes: 180,
       difficulty: 'Menengah',
-      category: 'soup',
+      category: 'makan_malam',
     ),
 
     // ── Dessert ──────────────────────────────────────────────────────────────
@@ -156,7 +156,7 @@ class RecipeData {
       ],
       durationMinutes: 30,
       difficulty: 'Mudah',
-      category: 'dessert',
+      category: 'camilan',
     ),
     Recipe(
       id: '7',
@@ -180,7 +180,7 @@ class RecipeData {
       ],
       durationMinutes: 45,
       difficulty: 'Menengah',
-      category: 'dessert',
+      category: 'camilan',
     ),
 
     // ── Minuman ──────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ class RecipeData {
       ],
       durationMinutes: 10,
       difficulty: 'Mudah',
-      category: 'beverage',
+      category: 'minuman',
     ),
     Recipe(
       id: '9',
@@ -230,7 +230,7 @@ class RecipeData {
       ],
       durationMinutes: 10,
       difficulty: 'Mudah',
-      category: 'beverage',
+      category: 'minuman',
     ),
 
     // ── Snack ────────────────────────────────────────────────────────────────
@@ -257,7 +257,7 @@ class RecipeData {
       ],
       durationMinutes: 25,
       difficulty: 'Mudah',
-      category: 'snack',
+      category: 'camilan',
     ),
     Recipe(
       id: '11',
@@ -282,7 +282,7 @@ class RecipeData {
       ],
       durationMinutes: 20,
       difficulty: 'Mudah',
-      category: 'snack',
+      category: 'camilan',
       youtubeId: '9z8X4-f446I',
     ),
   ];

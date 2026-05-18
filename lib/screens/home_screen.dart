@@ -86,13 +86,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
 // ─── Tab Beranda ─────────────────────────────────────────────────────────────
 
-class _HomeTab extends StatelessWidget {
+class _HomeTab extends StatefulWidget {
   const _HomeTab();
+
+  @override
+  State<_HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends State<_HomeTab> {
+  String _selectedMenu = 'Semua';
 
   @override
   Widget build(BuildContext context) {
     final recipeProvider = context.watch<RecipeProvider>();
-    final recipes = recipeProvider.recipes;
+    final allRecipes = recipeProvider.recipes;
+
+    String getSelectedCategoryId() {
+      switch (_selectedMenu) {
+        case 'Sarapan': return 'sarapan';
+        case 'Makan Siang': return 'makan_siang';
+        case 'Makan Malam': return 'makan_malam';
+        case 'Camilan': return 'camilan';
+        default: return 'all';
+      }
+    }
+
+    final categoryId = getSelectedCategoryId();
+    final recipes = categoryId == 'all' 
+        ? allRecipes 
+        : allRecipes.where((r) => r.category == categoryId).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -135,12 +157,19 @@ class _HomeTab extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: CircleAvatar(
-              backgroundColor: Theme.of(context).brightness == Brightness.dark 
-                  ? Colors.orange.withAlpha(50) 
-                  : Colors.orange[50],
-              child: const Icon(Icons.notifications_outlined,
-                  color: Colors.orange),
+            child: GestureDetector(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Belum ada notifikasi baru')),
+                );
+              },
+              child: CircleAvatar(
+                backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                    ? Colors.orange.withAlpha(50) 
+                    : Colors.orange[50],
+                child: const Icon(Icons.notifications_outlined,
+                    color: Colors.orange),
+              ),
             ),
           ),
         ],
@@ -183,11 +212,11 @@ class _HomeTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               child: Row(
                 children: [
-                  _buildCategoryItem(context, 'Semua', true),
-                  _buildCategoryItem(context, 'Sarapan', false),
-                  _buildCategoryItem(context, 'Makan Siang', false),
-                  _buildCategoryItem(context, 'Makan Malam', false),
-                  _buildCategoryItem(context, 'Camilan', false),
+                  _buildCategoryItem(context, 'Semua', _selectedMenu == 'Semua'),
+                  _buildCategoryItem(context, 'Sarapan', _selectedMenu == 'Sarapan'),
+                  _buildCategoryItem(context, 'Makan Siang', _selectedMenu == 'Makan Siang'),
+                  _buildCategoryItem(context, 'Makan Malam', _selectedMenu == 'Makan Malam'),
+                  _buildCategoryItem(context, 'Camilan', _selectedMenu == 'Camilan'),
                 ],
               ),
             ),
@@ -238,23 +267,30 @@ class _HomeTab extends StatelessWidget {
 
   Widget _buildCategoryItem(BuildContext context, String title, bool isSelected) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return Container(
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: isSelected 
-            ? Colors.orange 
-            : (isDark ? Colors.grey[800] : Colors.grey[100]),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        title,
-        style: TextStyle(
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedMenu = title;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
           color: isSelected 
-              ? Colors.white 
-              : (isDark ? Colors.white70 : Colors.black87),
-          fontWeight:
-              isSelected ? FontWeight.bold : FontWeight.normal,
+              ? Colors.orange 
+              : (isDark ? Colors.grey[800] : Colors.grey[100]),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isSelected 
+                ? Colors.white 
+                : (isDark ? Colors.white70 : Colors.black87),
+            fontWeight:
+                isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
         ),
       ),
     );

@@ -10,7 +10,7 @@ class Recipe {
 
   /// ID kategori resep — harus sesuai dengan `RecipeCategory.id`
   /// di `CategoryData.categories`.
-  /// Nilai valid: 'all', 'main_course', 'dessert', 'beverage', 'soup', 'snack'
+  /// Nilai valid: 'all', 'sarapan', 'makan_siang', 'makan_malam', 'camilan', 'minuman'
   final String category;
   final String? youtubeId;
 
@@ -24,7 +24,7 @@ class Recipe {
     required this.instructions,
     required this.durationMinutes,
     required this.difficulty,
-    this.category = 'main_course',
+    this.category = 'makan_siang',
     this.youtubeId,
   });
 }
