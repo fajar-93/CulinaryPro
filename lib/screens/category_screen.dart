@@ -49,7 +49,10 @@ class _CategoryBody extends StatelessWidget {
     final selectedId = categoryProvider.selectedCategoryId;
     final categories = categoryProvider.categories;
 
-    final allRecipes = context.watch<RecipeProvider>().allRecipes;
+    final recipeProvider = context.watch<RecipeProvider>();
+    final allRecipes = recipeProvider.allRecipes;
+    final isLoading = recipeProvider.isLoading;
+    final errorMessage = recipeProvider.errorMessage;
 
     // Filter resep: "all" tampilkan semua, selain itu filter by category id
     final filteredRecipes = selectedId == 'all'
@@ -132,21 +135,34 @@ class _CategoryBody extends StatelessWidget {
         ),
 
         // ── Daftar resep berdasarkan kategori ────────────────────────────────
-        filteredRecipes.isEmpty
-            ? SliverFillRemaining(child: _EmptyCategory())
-            : SliverPadding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: RecipeCard(recipe: filteredRecipes[index], heroPrefix: 'category'),
-                    ),
-                    childCount: filteredRecipes.length,
-                  ),
-                ),
+        if (isLoading)
+          const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+        else if (errorMessage != null)
+          SliverFillRemaining(
+            child: Center(
+              child: Text(
+                'Gagal memuat resep:\n$errorMessage',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
               ),
+            ),
+          )
+        else if (filteredRecipes.isEmpty)
+          SliverFillRemaining(child: _EmptyCategory())
+        else
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: RecipeCard(
+                      recipe: filteredRecipes[index], heroPrefix: 'category'),
+                ),
+                childCount: filteredRecipes.length,
+              ),
+            ),
+          ),
 
         const SliverToBoxAdapter(child: SizedBox(height: 24)),
       ],

@@ -97,9 +97,19 @@ class _HomeTabState extends State<_HomeTab> {
   String _selectedMenu = 'Semua';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RecipeProvider>().fetchInitialRecipes();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final recipeProvider = context.watch<RecipeProvider>();
     final allRecipes = recipeProvider.recipes;
+    final isLoading = recipeProvider.isLoading;
+    final errorMessage = recipeProvider.errorMessage;
 
     String getSelectedCategoryId() {
       switch (_selectedMenu) {
@@ -245,19 +255,29 @@ class _HomeTabState extends State<_HomeTab> {
 
             // Recipe List
             Expanded(
-              child: recipes.isEmpty
-                  ? const Center(child: Text('Resep tidak ditemukan'))
-                  : ListView.builder(
-                      padding:
-                          const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: recipes.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: RecipeCard(recipe: recipes[index], heroPrefix: 'home'),
-                        );
-                      },
-                    ),
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : errorMessage != null
+                      ? Center(
+                          child: Text(
+                            'Gagal memuat resep:\n$errorMessage',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        )
+                      : recipes.isEmpty
+                          ? const Center(child: Text('Resep tidak ditemukan'))
+                          : ListView.builder(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              itemCount: recipes.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 16),
+                                  child: RecipeCard(
+                                      recipe: recipes[index], heroPrefix: 'home'),
+                                );
+                              },
+                            ),
             ),
           ],
         ),
