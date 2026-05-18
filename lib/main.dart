@@ -9,8 +9,17 @@ import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
 import 'screens/splash_screen.dart';
 import 'services/app_theme.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase initialization failed: $e');
+    // Aplikasi akan tetap berjalan meskipun Firebase gagal (misalnya di Chrome tanpa setup web)
+  }
+  
   runApp(
     MultiProvider(
       providers: [
