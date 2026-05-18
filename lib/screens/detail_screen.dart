@@ -4,6 +4,8 @@ import '../providers/recipe_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/bookmark_provider.dart';
 import '../widgets/recipe_video_player.dart';
+import '../models/recipe_model.dart';
+import '../services/translation_service.dart';
 
 class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key});
@@ -14,6 +16,10 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   bool _isVideoPlaying = false;
+  final TranslationService _translationService = TranslationService();
+  bool _isTranslated = false;
+  bool _isTranslating = false;
+  Recipe? _translatedRecipe;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +35,7 @@ class _DetailScreenState extends State<DetailScreen> {
     }
 
     final recipe = context.read<RecipeProvider>().findById(recipeId);
+    final activeRecipe = _isTranslated && _translatedRecipe != null ? _translatedRecipe! : recipe;
 
     // Selector memastikan hanya ikon yang rebuild saat state berubah.
     final isFav = context.select<FavoriteProvider, bool>(
@@ -59,6 +66,74 @@ class _DetailScreenState extends State<DetailScreen> {
               ),
             ),
             actions: [
+              // Tombol Terjemahan
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: CircleAvatar(
+                  backgroundColor: _isTranslated
+                      ? Colors.orange
+                      : Theme.of(context).brightness == Brightness.dark 
+                          ? const Color.fromRGBO(50, 50, 50, 0.9)
+                          : const Color.fromRGBO(255, 255, 255, 0.9),
+                  child: _isTranslating
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.0,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                          ),
+                        )
+                      : IconButton(
+                          icon: Icon(
+                            Icons.g_translate_rounded,
+                            color: _isTranslated
+                                ? Colors.white
+                                : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                          ),
+                          onPressed: () async {
+                            if (_isTranslated) {
+                              setState(() {
+                                _isTranslated = false;
+                              });
+                            } else {
+                              if (_translatedRecipe != null) {
+                                setState(() {
+                                  _isTranslated = true;
+                                });
+                              } else {
+                                setState(() {
+                                  _isTranslating = true;
+                                });
+                                try {
+                                  final translated = await _translationService.translateRecipe(recipe);
+                                  setState(() {
+                                    _translatedRecipe = translated;
+                                    _isTranslated = true;
+                                    _isTranslating = false;
+                                  });
+                                } catch (e) {
+                                  setState(() {
+                                    _isTranslating = false;
+                                  });
+                                  if (!context.mounted) return;
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(e.toString().replaceAll('Exception: ', '')),
+                                      behavior: SnackBarBehavior.floating,
+                                      backgroundColor: Colors.redAccent,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          },
+                        ),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: CircleAvatar(
@@ -206,7 +281,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   children: [
                     // Title and Basic Info
                     Text(
-                      recipe.title,
+                      activeRecipe.title,
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -217,9 +292,9 @@ class _DetailScreenState extends State<DetailScreen> {
                     Row(
                       children: [
                         _buildBadge(context, Icons.timer_outlined,
-                            '${recipe.durationMinutes} Menit'),
+                            '${activeRecipe.durationMinutes} Menit'),
                         const SizedBox(width: 15),
-                        _buildBadge(context, Icons.bar_chart, recipe.difficulty),
+                        _buildBadge(context, Icons.bar_chart, activeRecipe.difficulty),
                       ],
                     ),
 
@@ -232,7 +307,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      recipe.description,
+                      activeRecipe.description,
                       style: TextStyle(
                         fontSize: 16,
                         color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[600],
@@ -252,7 +327,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: EdgeInsets.zero,
-                      itemCount: recipe.ingredients.length,
+                      itemCount: activeRecipe.ingredients.length,
                       itemBuilder: (context, index) {
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -268,7 +343,7 @@ class _DetailScreenState extends State<DetailScreen> {
                               const SizedBox(width: 15),
                               Expanded(
                                 child: Text(
-                                  recipe.ingredients[index],
+                                  activeRecipe.ingredients[index],
                                   style: const TextStyle(fontSize: 16),
                                 ),
                               ),
@@ -290,7 +365,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       padding: EdgeInsets.zero,
-                      itemCount: recipe.instructions.length,
+                      itemCount: activeRecipe.instructions.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 20),
@@ -317,7 +392,7 @@ class _DetailScreenState extends State<DetailScreen> {
                               const SizedBox(width: 15),
                               Expanded(
                                 child: Text(
-                                  recipe.instructions[index],
+                                  activeRecipe.instructions[index],
                                   style: const TextStyle(
                                     fontSize: 16,
                                     height: 1.5,
