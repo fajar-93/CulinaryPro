@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/app_images.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -76,7 +77,13 @@ class _SplashScreenState extends State<SplashScreen>
   void _goToHome() {
     if (!mounted) return;
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    Navigator.of(context).pushReplacementNamed('/');
+    
+    // Pengecekan status login pengguna secara real-time sebelum berpindah halaman
+    if (FirebaseAuth.instance.currentUser != null) {
+      Navigator.of(context).pushReplacementNamed('/');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 
   @override

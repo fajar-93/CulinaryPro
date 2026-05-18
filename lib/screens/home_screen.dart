@@ -4,6 +4,8 @@ import '../providers/recipe_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/recipe_card.dart';
+import '../providers/auth_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'favorite_screen.dart';
 import 'category_screen.dart';
 import 'bookmark_screen.dart';
@@ -133,7 +135,7 @@ class _HomeTabState extends State<_HomeTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Halo, Foodie!',
+              'Halo, ${FirebaseAuth.instance.currentUser?.displayName ?? 'Foodie'}!',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).brightness == Brightness.dark 
                         ? Colors.grey[400] 
@@ -161,6 +163,39 @@ class _HomeTabState extends State<_HomeTab> {
                   onPressed: () {
                     themeProvider.toggleTheme();
                   },
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: const Icon(Icons.logout_rounded, color: Colors.orange),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    title: const Text('Keluar dari Akun'),
+                    content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(dialogContext),
+                        child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          final navigator = Navigator.of(context);
+                          Navigator.pop(dialogContext);
+                          await context.read<AuthProvider>().logout();
+                          navigator.pushNamedAndRemoveUntil('/login', (route) => false);
+                        },
+                        child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),

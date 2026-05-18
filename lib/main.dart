@@ -5,9 +5,12 @@ import 'providers/favorite_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/bookmark_provider.dart';
+import 'providers/auth_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 import 'services/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -23,6 +26,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => RecipeProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
@@ -50,6 +54,8 @@ class RecipeApp extends StatelessWidget {
           initialRoute: '/splash',
           routes: {
             '/splash': (context) => const SplashScreen(),
+            '/login': (context) => const LoginScreen(),
+            '/register': (context) => const RegisterScreen(),
             '/': (context) => const HomeScreen(),
             '/detail': (context) => const DetailScreen(),
           },

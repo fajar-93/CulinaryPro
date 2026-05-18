@@ -1,0 +1,97 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
+
+class AuthProvider with ChangeNotifier {
+  final AuthService _authService = AuthService();
+  
+  User? _user;
+  bool _isLoading = false;
+  String? _errorMessage;
+  StreamSubscription<User?>? _authSubscription;
+
+  AuthProvider() {
+    // Dengarkan perubahan status auth dari Firebase secara real-time
+    _user = _authService.currentUser;
+    _authSubscription = _authService.authStateChanges.listen((User? user) {
+      _user = user;
+      notifyListeners();
+    });
+  }
+
+  // Getters
+  User? get user => _user;
+  bool get isAuthenticated => _user != null;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  // Login
+  Future<bool> login(String email, String password) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      _user = await _authService.signInWithEmailAndPassword(email, password);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  // Register
+  Future<bool> register(String email, String name, String password) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      _user = await _authService.signUpWithEmailAndPassword(email, name, password);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  // Logout
+  Future<void> logout() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      await _authService.signOut();
+      _user = null;
+      _setLoading(false);
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+    }
+  }
+
+  // Helper setter loading
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  // Pembersihan error state
+  void _clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void clearError() {
+    _clearError();
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+}
