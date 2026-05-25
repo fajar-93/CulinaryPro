@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Mendapatkan user yang sedang aktif
   User? get currentUser => _auth.currentUser;
@@ -20,7 +23,8 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     } catch (e) {
-      throw Exception('Terjadi kesalahan koneksi. Silakan coba lagi.');
+      print('Sign In Error: $e');
+      throw Exception('Terjadi kesalahan koneksi ($e). Silakan coba lagi.');
     }
   }
 
@@ -43,7 +47,52 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     } catch (e) {
-      throw Exception('Terjadi kesalahan saat pendaftaran. Silakan coba lagi.');
+      print('Sign Up Error: $e');
+      throw Exception('Terjadi kesalahan saat pendaftaran ($e). Silakan coba lagi.');
+    }
+  }
+
+  // Forgot Password
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } catch (e) {
+      throw Exception('Terjadi kesalahan koneksi. Silakan coba lagi.');
+    }
+  }
+
+  // Google Sign In
+  Future<User?> signInWithGoogle() async {
+    try {
+      if (kIsWeb) {
+        // Implementasi khusus Web menggunakan signInWithRedirect
+        GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        await _auth.signInWithRedirect(googleProvider);
+        return _auth.currentUser;
+      } else {
+        // Implementasi untuk Mobile (Android/iOS)
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) return null; // Batal login
+
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        final UserCredential userCredential = await _auth.signInWithCredential(credential);
+        return userCredential.user;
+      }
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } on FirebaseException catch (e) {
+      print('FirebaseException: ${e.code} - ${e.message}');
+      throw Exception('Firebase Error: ${e.message}');
+    } catch (e, stack) {
+      print('Google Sign In Error: $e\n$stack');
+      throw Exception('Sistem Error Web: $e');
     }
   }
 
@@ -76,7 +125,7 @@ class AuthService {
       case 'invalid-credential':
         return Exception('Email atau password salah.');
       default:
-        return Exception(e.message ?? 'Terjadi kesalahan sistem. Coba lagi.');
+        return Exception('Code: ${e.code}, Msg: ${e.message ?? 'Unknown'}');
     }
   }
 }

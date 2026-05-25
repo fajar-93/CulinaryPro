@@ -3,11 +3,12 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services")
+    id("com.google.gms.google-services") // Plugin Firebase
 }
 
 android {
-    namespace = "com.example.aplikasi_resep"
+    // Sesuaikan namespace dengan nama paket aplikasi Anda jika berbeda
+    namespace = "com.example.aplikasi_resep" 
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -17,18 +18,18 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // PENTING: Ubah ini sesuai dengan nama paket/Application ID Anda yang terdaftar di Firebase
         applicationId = "com.example.aplikasi_resep"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -38,7 +39,19 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
 
+dependencies {
+    // Cukup ini saja, tidak perlu classpath atau bom manual karena sudah diatur Flutter
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
+}
+
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 flutter {

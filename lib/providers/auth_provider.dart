@@ -58,6 +58,38 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Reset Password
+  Future<bool> resetPassword(String email) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      await _authService.sendPasswordResetEmail(email);
+      _setLoading(false);
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
+    }
+  }
+
+  // Google Sign In
+  Future<bool> loginWithGoogle() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      _user = await _authService.signInWithGoogle();
+      _setLoading(false);
+      return _user != null; // Mengembalikan true jika berhasil login
+    } catch (e) {
+      _errorMessage = e.toString();
+      _setLoading(false);
+      return false;
+    }
+  }
+
   // Logout
   Future<void> logout() async {
     _setLoading(true);
