@@ -205,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // ── App Name ─────────────────────────────────────────
                 const Text(
-                  'aplikasi_resep',
+                  'CulinaryPro',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,

@@ -178,7 +178,7 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(
                       children: [
                         const Text(
-                          'RecipeApp',
+                          'CulinaryPro',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 40,
