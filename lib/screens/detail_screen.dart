@@ -6,6 +6,9 @@ import '../providers/bookmark_provider.dart';
 import '../widgets/recipe_video_player.dart';
 import '../models/recipe_model.dart';
 import '../services/translation_service.dart';
+import '../providers/comment_provider.dart';
+import '../models/comment_model.dart';
+import '../widgets/comment_sheet.dart';
 
 class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key});
@@ -23,7 +26,26 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments;
+    final args = ModalRoute.of(context)?.settings.arguments;
+    
+    if (args == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Data resep tidak ditemukan (sesi kedaluwarsa).'),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.pushReplacementNamed(context, '/'),
+                child: const Text('Kembali ke Beranda'),
+              )
+            ],
+          ),
+        ),
+      );
+    }
+
     String recipeId;
     String heroPrefix = 'card';
     
@@ -31,11 +53,37 @@ class _DetailScreenState extends State<DetailScreen> {
       recipeId = args['id'] as String;
       heroPrefix = args['prefix'] as String;
     } else {
-      recipeId = args as String;
+      recipeId = args.toString();
     }
 
-    final recipe = context.read<RecipeProvider>().findById(recipeId);
-    final activeRecipe = _isTranslated && _translatedRecipe != null ? _translatedRecipe! : recipe;
+    Recipe? recipe;
+    try {
+      recipe = context.read<RecipeProvider>().findById(recipeId);
+    } catch (_) {
+      recipe = null;
+    }
+
+    if (recipe == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Resep tidak ditemukan atau data belum dimuat.'),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.pushReplacementNamed(context, '/'),
+                child: const Text('Kembali ke Beranda'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final activeRecipe = _isTranslated && _translatedRecipe != null
+        ? _translatedRecipe!
+        : recipe;
 
     // Selector memastikan hanya ikon yang rebuild saat state berubah.
     final isFav = context.select<FavoriteProvider, bool>(
@@ -55,12 +103,16 @@ class _DetailScreenState extends State<DetailScreen> {
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
-                backgroundColor: Theme.of(context).brightness == Brightness.dark 
+                backgroundColor: Theme.of(context).brightness == Brightness.dark
                     ? const Color.fromRGBO(50, 50, 50, 0.9)
                     : const Color.fromRGBO(255, 255, 255, 0.9),
                 child: IconButton(
-                  icon: Icon(Icons.arrow_back, 
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
@@ -72,16 +124,18 @@ class _DetailScreenState extends State<DetailScreen> {
                 child: CircleAvatar(
                   backgroundColor: _isTranslated
                       ? Colors.orange
-                      : Theme.of(context).brightness == Brightness.dark 
-                          ? const Color.fromRGBO(50, 50, 50, 0.9)
-                          : const Color.fromRGBO(255, 255, 255, 0.9),
+                      : Theme.of(context).brightness == Brightness.dark
+                      ? const Color.fromRGBO(50, 50, 50, 0.9)
+                      : const Color.fromRGBO(255, 255, 255, 0.9),
                   child: _isTranslating
                       ? const SizedBox(
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2.0,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.orange,
+                            ),
                           ),
                         )
                       : IconButton(
@@ -89,7 +143,10 @@ class _DetailScreenState extends State<DetailScreen> {
                             Icons.g_translate_rounded,
                             color: _isTranslated
                                 ? Colors.white
-                                : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                                : (Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : Colors.black),
                           ),
                           onPressed: () async {
                             if (_isTranslated) {
@@ -106,7 +163,8 @@ class _DetailScreenState extends State<DetailScreen> {
                                   _isTranslating = true;
                                 });
                                 try {
-                                  final translated = await _translationService.translateRecipe(recipe);
+                                  final translated = await _translationService
+                                      .translateRecipe(recipe!);
                                   setState(() {
                                     _translatedRecipe = translated;
                                     _isTranslated = true;
@@ -119,7 +177,12 @@ class _DetailScreenState extends State<DetailScreen> {
                                   if (!context.mounted) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(e.toString().replaceAll('Exception: ', '')),
+                                      content: Text(
+                                        e.toString().replaceAll(
+                                          'Exception: ',
+                                          '',
+                                        ),
+                                      ),
                                       behavior: SnackBarBehavior.floating,
                                       backgroundColor: Colors.redAccent,
                                       shape: RoundedRectangleBorder(
@@ -139,34 +202,38 @@ class _DetailScreenState extends State<DetailScreen> {
                 child: CircleAvatar(
                   backgroundColor: isBookmarked
                       ? Colors.blue.withAlpha(230)
-                      : Theme.of(context).brightness == Brightness.dark 
-                          ? const Color.fromRGBO(50, 50, 50, 0.9)
-                          : const Color.fromRGBO(255, 255, 255, 0.9),
+                      : Theme.of(context).brightness == Brightness.dark
+                      ? const Color.fromRGBO(50, 50, 50, 0.9)
+                      : const Color.fromRGBO(255, 255, 255, 0.9),
                   child: IconButton(
                     icon: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
-                      transitionBuilder: (child, animation) => ScaleTransition(
-                        scale: animation,
-                        child: child,
-                      ),
+                      transitionBuilder: (child, animation) =>
+                          ScaleTransition(scale: animation, child: child),
                       child: Icon(
                         isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                         key: ValueKey<bool>(isBookmarked),
-                        color: isBookmarked ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                        color: isBookmarked
+                            ? Colors.white
+                            : (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black),
                       ),
                     ),
                     onPressed: () {
-                      context.read<BookmarkProvider>().toggleBookmark(recipe);
+                      context.read<BookmarkProvider>().toggleBookmark(recipe!);
 
-                      final message =
-                          isBookmarked ? 'Dihapus dari bookmark' : 'Disimpan ke bookmark';
+                      final message = isBookmarked
+                          ? 'Dihapus dari bookmark'
+                          : 'Disimpan ke bookmark';
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(message),
                           duration: const Duration(seconds: 1),
                           behavior: SnackBarBehavior.floating,
-                          backgroundColor:
-                              isBookmarked ? Colors.grey[700] : Colors.blue,
+                          backgroundColor: isBookmarked
+                              ? Colors.grey[700]
+                              : Colors.blue,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -181,34 +248,38 @@ class _DetailScreenState extends State<DetailScreen> {
                 child: CircleAvatar(
                   backgroundColor: isFav
                       ? Colors.red.withAlpha(230)
-                      : Theme.of(context).brightness == Brightness.dark 
-                          ? const Color.fromRGBO(50, 50, 50, 0.9)
-                          : const Color.fromRGBO(255, 255, 255, 0.9),
+                      : Theme.of(context).brightness == Brightness.dark
+                      ? const Color.fromRGBO(50, 50, 50, 0.9)
+                      : const Color.fromRGBO(255, 255, 255, 0.9),
                   child: IconButton(
                     icon: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 250),
-                      transitionBuilder: (child, animation) => ScaleTransition(
-                        scale: animation,
-                        child: child,
-                      ),
+                      transitionBuilder: (child, animation) =>
+                          ScaleTransition(scale: animation, child: child),
                       child: Icon(
                         isFav ? Icons.favorite : Icons.favorite_border,
                         key: ValueKey<bool>(isFav),
-                        color: isFav ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black),
+                        color: isFav
+                            ? Colors.white
+                            : (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black),
                       ),
                     ),
                     onPressed: () {
-                      context.read<FavoriteProvider>().toggleFavorite(recipe);
+                      context.read<FavoriteProvider>().toggleFavorite(recipe!);
 
-                      final message =
-                          isFav ? 'Dihapus dari favorit' : 'Ditambahkan ke favorit';
+                      final message = isFav
+                          ? 'Dihapus dari favorit'
+                          : 'Ditambahkan ke favorit';
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(message),
                           duration: const Duration(seconds: 1),
                           behavior: SnackBarBehavior.floating,
-                          backgroundColor:
-                              isFav ? Colors.grey[700] : Colors.orange,
+                          backgroundColor: isFav
+                              ? Colors.grey[700]
+                              : Colors.orange,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -222,7 +293,9 @@ class _DetailScreenState extends State<DetailScreen> {
             flexibleSpace: FlexibleSpaceBar(
               background: _isVideoPlaying && recipe.youtubeId != null
                   ? Padding(
-                      padding: const EdgeInsets.only(top: kToolbarHeight + 24), // Offset for AppBar & StatusBar
+                      padding: const EdgeInsets.only(
+                        top: kToolbarHeight + 24,
+                      ), // Offset for AppBar & StatusBar
                       child: RecipeVideoPlayer(youtubeId: recipe.youtubeId!),
                     )
                   : Stack(
@@ -233,11 +306,15 @@ class _DetailScreenState extends State<DetailScreen> {
                           child: Image.network(
                             recipe.imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Container(
-                              color: Colors.grey[200],
-                              child: const Icon(Icons.broken_image,
-                                  color: Colors.grey, size: 64),
-                            ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                Container(
+                                  color: Colors.grey[200],
+                                  child: const Icon(
+                                    Icons.broken_image,
+                                    color: Colors.grey,
+                                    size: 64,
+                                  ),
+                                ),
                           ),
                         ),
                         if (recipe.youtubeId != null)
@@ -254,9 +331,16 @@ class _DetailScreenState extends State<DetailScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.black.withAlpha(150),
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 2),
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
                                 ),
-                                child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
+                                child: const Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
                               ),
                             ),
                           ),
@@ -267,15 +351,19 @@ class _DetailScreenState extends State<DetailScreen> {
 
           // ─── Content Section ─────────────────────────────────────────────
           SliverToBoxAdapter(
-              child: Container(
-                transform: Matrix4.translationValues(0, -30, 0),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+            child: Container(
+              transform: Matrix4.translationValues(0, -30, 0),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(30),
                 ),
+              ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 25,
+                  vertical: 30,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -285,16 +373,25 @@ class _DetailScreenState extends State<DetailScreen> {
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
+                        color:
+                            Theme.of(context).textTheme.titleLarge?.color ??
+                            Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 15),
                     Row(
                       children: [
-                        _buildBadge(context, Icons.timer_outlined,
-                            '${activeRecipe.durationMinutes} Menit'),
+                        _buildBadge(
+                          context,
+                          Icons.timer_outlined,
+                          '${activeRecipe.durationMinutes} Menit',
+                        ),
                         const SizedBox(width: 15),
-                        _buildBadge(context, Icons.bar_chart, activeRecipe.difficulty),
+                        _buildBadge(
+                          context,
+                          Icons.bar_chart,
+                          activeRecipe.difficulty,
+                        ),
                       ],
                     ),
 
@@ -303,14 +400,18 @@ class _DetailScreenState extends State<DetailScreen> {
                     const Text(
                       'Deskripsi',
                       style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       activeRecipe.description,
                       style: TextStyle(
                         fontSize: 16,
-                        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[600],
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.grey[400]
+                            : Colors.grey[600],
                         height: 1.5,
                       ),
                     ),
@@ -320,7 +421,9 @@ class _DetailScreenState extends State<DetailScreen> {
                     const Text(
                       'Bahan-bahan',
                       style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 15),
                     ListView.builder(
@@ -333,13 +436,19 @@ class _DetailScreenState extends State<DetailScreen> {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.orange.withAlpha(30) : Colors.orange[50],
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.orange.withAlpha(30)
+                                : Colors.orange[50],
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.check_circle,
-                                  color: Colors.orange, size: 20),
+                              const Icon(
+                                Icons.check_circle,
+                                color: Colors.orange,
+                                size: 20,
+                              ),
                               const SizedBox(width: 15),
                               Expanded(
                                 child: Text(
@@ -358,7 +467,9 @@ class _DetailScreenState extends State<DetailScreen> {
                     const Text(
                       'Langkah Memasak',
                       style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 15),
                     ListView.builder(
@@ -405,6 +516,187 @@ class _DetailScreenState extends State<DetailScreen> {
                       },
                     ),
 
+                    const SizedBox(height: 30),
+                    // Ulasan & Rating
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Ulasan & Rating',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(25),
+                                ),
+                              ),
+                              builder: (context) =>
+                                  CommentSheet(recipeId: recipeId),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(0, 42),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.rate_review, size: 18),
+                              SizedBox(width: 8),
+                              Text('Beri Ulasan'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    StreamBuilder<List<Comment>>(
+                      stream: context.read<CommentProvider>().getCommentsStream(
+                        recipeId,
+                      ),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.orange,
+                            ),
+                          );
+                        }
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text('Terjadi kesalahan: ${snapshot.error}'),
+                          );
+                        }
+
+                        final comments = snapshot.data ?? [];
+                        if (comments.isEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.grey[800]
+                                  : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'Belum ada ulasan. Jadilah yang pertama!',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        return ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: comments.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 15),
+                          itemBuilder: (context, index) {
+                            final comment = comments[index];
+                            final date = comment.createdAt;
+                            final dateString =
+                                "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+
+                            return Container(
+                              padding: const EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                color:
+                                    Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.grey[850]
+                                    : Colors.white,
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color:
+                                      Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.grey[700]!
+                                      : Colors.grey[300]!,
+                                ),
+                                boxShadow: [
+                                  if (Theme.of(context).brightness ==
+                                      Brightness.light)
+                                    BoxShadow(
+                                      color: Colors.grey.withAlpha(20),
+                                      spreadRadius: 1,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          comment.userName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Text(
+                                        dateString,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    children: List.generate(5, (starIndex) {
+                                      return Icon(
+                                        starIndex < comment.rating
+                                            ? Icons.star
+                                            : Icons.star_border,
+                                        color: Colors.amber,
+                                        size: 16,
+                                      );
+                                    }),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    comment.text,
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
                     const SizedBox(height: 50),
                   ],
                 ),
@@ -420,7 +712,9 @@ class _DetailScreenState extends State<DetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[800] : Colors.grey[100],
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey[800]
+            : Colors.grey[100],
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -429,10 +723,7 @@ class _DetailScreenState extends State<DetailScreen> {
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
         ],
       ),

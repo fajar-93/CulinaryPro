@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    clientId: kIsWeb ? 'dummy-client-id.apps.googleusercontent.com' : null,
+  );
 
   // Mendapatkan user yang sedang aktif
   User? get currentUser => _auth.currentUser;
