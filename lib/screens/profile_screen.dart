@@ -37,7 +37,7 @@ class ProfileScreen extends StatelessWidget {
           'Keluar dari Akun',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: const Text('Apakah Anda yakin ingin keluar dari aplikasi Masak Enak?'),
+        content: const Text('Apakah Anda yakin ingin keluar dari aplikasi CulinaryPro?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),

@@ -1,4 +1,4 @@
-# aplikasi_resep
+# CulinaryPro
 
 A new Flutter project.
 

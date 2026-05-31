@@ -147,7 +147,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(height: 16),
 
                 const Text(
-                  'aplikasi_resep',
+                  'CulinaryPro',
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,

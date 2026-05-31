@@ -1,5 +1,5 @@
-name: recipe_app
-description: "A modern Recipe Application built with Flutter and Provider."
+name: culinary_pro
+description: "A modern CulinaryPro built with Flutter and Provider."
 publish_to: "none"
 
 version: 1.0.0+1
