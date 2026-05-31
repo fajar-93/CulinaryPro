@@ -28,6 +28,23 @@ class Recipe {
     this.youtubeId,
   });
 
+  factory Recipe.fromFirestore(
+  String id,
+  Map<String, dynamic> data,
+) {
+  return Recipe(
+    id: id,
+    title: data['title'] ?? '',
+    description: data['description'] ?? '',
+    imageUrl: data['imageUrl'] ?? '',
+    ingredients: List<String>.from(data['ingredients'] ?? []),
+    instructions: List<String>.from(data['instructions'] ?? []),
+    durationMinutes: data['durationMinutes'] ?? 0,
+    difficulty: data['difficulty'] ?? 'Menengah',
+    category: data['category'] ?? 'makan_siang',
+  );
+}
+
   factory Recipe.fromJson(Map<String, dynamic> json) {
     // Extract ingredients and measures
     List<String> ingredientsList = [];

@@ -15,7 +15,11 @@ analyzer:
     library_private_types_in_public_API: ignore
     prefer_const_constructors_in_immutables: ignore
     prefer_is_not_empty: ignore
+    unnecessary_import: ignore
     unnecessary_to_list_in_spreads: ignore
+    unused_element: ignore
+    unused_field: ignore
+    unused_import: ignore
     unused_local_variable: ignore
     use_key_in_widget_constructors: ignore
 

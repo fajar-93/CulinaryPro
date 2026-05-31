@@ -42,6 +42,29 @@ class _HomeScreenState extends State<HomeScreen> {
         index: _selectedIndex,
         children: _pages,
       ),
+      floatingActionButton: _selectedIndex == 0
+          ? Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF9800), Color(0xFFFF5722)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withAlpha(80),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: FloatingActionButton(
+                onPressed: () => Navigator.pushNamed(context, '/upload'),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                child: const Icon(Icons.add_rounded, color: Colors.white, size: 32),
+              ),
+            )
+          : null,
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           boxShadow: [
@@ -280,6 +303,7 @@ class _HomeTabState extends State<_HomeTab> {
                   _buildCategoryItem(context, 'Makan Siang', _selectedMenu == 'Makan Siang'),
                   _buildCategoryItem(context, 'Makan Malam', _selectedMenu == 'Makan Malam'),
                   _buildCategoryItem(context, 'Camilan', _selectedMenu == 'Camilan'),
+                  _buildCategoryItem(context, 'Minuman', _selectedMenu == 'Minuman')
                 ],
               ),
             ),

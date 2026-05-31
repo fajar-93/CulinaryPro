@@ -7,11 +7,13 @@ import 'providers/theme_provider.dart';
 import 'providers/bookmark_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/comment_provider.dart';
+import 'providers/upload_recipe_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/detail_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
+import 'screens/upload_recipe_screen.dart';
 import 'services/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -38,6 +40,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => BookmarkProvider()),
         ChangeNotifierProvider(create: (_) => CommentProvider()),
+        ChangeNotifierProvider(create: (_) => UploadRecipeProvider()),
       ],
       child: const RecipeApp(),
     ),
@@ -64,6 +67,7 @@ class RecipeApp extends StatelessWidget {
             '/register': (context) => const RegisterScreen(),
             '/': (context) => const HomeScreen(),
             '/detail': (context) => const DetailScreen(),
+            '/upload': (context) => const UploadRecipeScreen(),
           },
         );
       },

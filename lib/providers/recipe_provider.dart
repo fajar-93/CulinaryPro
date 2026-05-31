@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 import '../models/recipe_model.dart';
 import '../services/api_service.dart';
 import '../data/recipe_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RecipeProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
   List<Recipe> _recipes = [];
   String _searchQuery = '';
@@ -23,9 +25,51 @@ class RecipeProvider with ChangeNotifier {
 
   /// Mengambil data awal
   Future<void> fetchInitialRecipes() async {
-    if (_recipes.isEmpty && !_isLoading) {
-      await _fetchFromApi('');
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final merged = <Recipe>[];
+
+      // Firestore
+      final snapshot = await _firestore
+          .collection('recipes')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      for (final doc in snapshot.docs) {
+        merged.add(
+          Recipe.fromFirestore(
+            doc.id,
+            doc.data(),
+          ),
+        );
+      }
+
+      // Data lokal
+      for (final recipe in RecipeData.recipes) {
+        if (!merged.any((r) => r.id == recipe.id)) {
+          merged.add(recipe);
+        }
+      }
+
+      // API
+      final apiResults = await _apiService.searchRecipes('');
+
+      for (final recipe in apiResults) {
+        if (!merged.any((r) => r.id == recipe.id)) {
+          merged.add(recipe);
+        }
+      }
+
+      _recipes = merged;
+    } catch (e) {
+      _errorMessage = e.toString();
     }
+
+    _isLoading = false;
+    notifyListeners();
   }
 
   /// Memperbarui query dan mengambil ulang data dari API
