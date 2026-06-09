@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/bookmark_provider.dart';
 import '../providers/theme_provider.dart';
+import 'help_center_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -308,8 +309,11 @@ class ProfileScreen extends StatelessWidget {
                       subtitle: const Text('Butuh bantuan atau panduan?'),
                       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                       onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Pusat Bantuan belum tersedia')),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HelpCenterScreen(),
+                          ),
                         );
                       },
                     ),

@@ -14,6 +14,7 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/upload_recipe_screen.dart';
+import 'screens/help_center_screen.dart';
 import 'services/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -68,6 +69,7 @@ class RecipeApp extends StatelessWidget {
             '/': (context) => const HomeScreen(),
             '/detail': (context) => const DetailScreen(),
             '/upload': (context) => const UploadRecipeScreen(),
+            '/help-center': (context) => const HelpCenterScreen(),
           },
         );
       },
