@@ -32,44 +32,59 @@ class RecipeProvider with ChangeNotifier {
     try {
       final merged = <Recipe>[];
 
-      // Firestore
-      final snapshot = await _firestore
-          .collection('recipes')
-          .orderBy('createdAt', descending: true)
-          .get();
-
-      for (final doc in snapshot.docs) {
-        merged.add(
-          Recipe.fromFirestore(
-            doc.id,
-            doc.data(),
-          ),
-        );
-      }
-
-      // Data lokal
+      // Data lokal (selalu dimasukkan dulu sebagai fallback/dasar)
       for (final recipe in RecipeData.recipes) {
         if (!merged.any((r) => r.id == recipe.id)) {
           merged.add(recipe);
         }
       }
 
-      // API
-      final apiResults = await _apiService.searchRecipes('');
+      try {
+        // Firestore
+        final snapshot = await _firestore
+            .collection('recipes')
+            .orderBy('createdAt', descending: true)
+            .get();
 
-      for (final recipe in apiResults) {
-        if (!merged.any((r) => r.id == recipe.id)) {
-          merged.add(recipe);
+        for (final doc in snapshot.docs) {
+          if (!merged.any((r) => r.id == doc.id)) {
+            merged.add(
+              Recipe.fromFirestore(
+                doc.id,
+                doc.data(),
+              ),
+            );
+          }
         }
+      } catch (e) {
+        debugPrint('Firestore fetch failed: $e');
+      }
+
+      try {
+        // API
+        final apiResults = await _apiService.searchRecipes('');
+
+        for (final recipe in apiResults) {
+          if (!merged.any((r) => r.id == recipe.id)) {
+            merged.add(recipe);
+          }
+        }
+      } catch (e) {
+        debugPrint('API Fetch failed: $e');
+        // Jika gagal karena no internet, biarkan saja karena merged sudah berisi data lokal & firestore.
       }
 
       _recipes = merged;
+      
+      if (_recipes.isEmpty) {
+        _errorMessage = 'Gagal memuat resep. Silakan periksa koneksi Anda.';
+      }
     } catch (e) {
       _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   /// Memperbarui query dan mengambil ulang data dari API

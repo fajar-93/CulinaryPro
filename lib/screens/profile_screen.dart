@@ -6,10 +6,31 @@ import '../providers/auth_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/bookmark_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/profile_provider.dart';
 import 'help_center_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        context.read<ProfileProvider>().loadProfile(
+              user.uid,
+              defaultEmail: user.email,
+              defaultName: user.displayName,
+            );
+      }
+    });
+  }
 
   String _getInitials(String? name) {
     if (name == null || name.trim().isEmpty) return 'F';
@@ -80,8 +101,11 @@ class ProfileScreen extends StatelessWidget {
       debugPrint('Firebase not available in ProfileScreen: $e');
     }
 
-    final displayName = currentUser?.displayName ?? 'Foodie User';
-    final email = currentUser?.email ?? 'guest@masakenak.com';
+    final profileProvider = context.watch<ProfileProvider>();
+    final userProfile = profileProvider.user;
+
+    final displayName = userProfile?.name ?? currentUser?.displayName ?? 'Foodie User';
+    final email = userProfile?.email ?? currentUser?.email ?? 'guest@masakenak.com';
 
     // Watch stats reaktif
     final favoriteCount = context.watch<FavoriteProvider>().favoriteCount;
@@ -134,16 +158,27 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            child: Center(
-                              child: Text(
-                                _getInitials(displayName),
-                                style: const TextStyle(
-                                  color: Colors.orange,
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                            child: profileProvider.isLoading && userProfile == null
+                                ? const CircularProgressIndicator(color: Colors.orange)
+                                : userProfile?.profileImage != null && userProfile!.profileImage!.isNotEmpty
+                                    ? ClipOval(
+                                        child: Image.network(
+                                          userProfile.profileImage!,
+                                          width: 80,
+                                          height: 80,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : Center(
+                                        child: Text(
+                                          _getInitials(displayName),
+                                          style: const TextStyle(
+                                            color: Colors.orange,
+                                            fontSize: 32,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                           ),
                           const SizedBox(width: 16),
                           // Detail Teks
@@ -191,6 +226,14 @@ class ProfileScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
+                          ),
+                          // Edit Profil Button
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/edit-profile');
+                            },
+                            icon: const Icon(Icons.edit, color: Colors.white),
+                            tooltip: 'Edit Profil',
                           ),
                         ],
                       ),
