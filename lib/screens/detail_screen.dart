@@ -303,19 +303,33 @@ class _DetailScreenState extends State<DetailScreen> {
                       children: [
                         Hero(
                           tag: '${heroPrefix}_${recipe.id}',
-                          child: Image.network(
-                            recipe.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Container(
-                                  color: Colors.grey[200],
-                                  child: const Icon(
-                                    Icons.broken_image,
-                                    color: Colors.grey,
-                                    size: 64,
-                                  ),
+                          child: recipe.imageUrl.startsWith('assets/')
+                              ? Image.asset(
+                                  recipe.imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                        color: Colors.grey[200],
+                                        child: const Icon(
+                                          Icons.broken_image,
+                                          color: Colors.grey,
+                                          size: 64,
+                                        ),
+                                      ),
+                                )
+                              : Image.network(
+                                  recipe.imageUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                        color: Colors.grey[200],
+                                        child: const Icon(
+                                          Icons.broken_image,
+                                          color: Colors.grey,
+                                          size: 64,
+                                        ),
+                                      ),
                                 ),
-                          ),
                         ),
                         if (recipe.youtubeId != null)
                           Center(
