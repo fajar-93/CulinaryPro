@@ -1,27 +1,39 @@
 import 'package:flutter/foundation.dart';
 import '../models/recipe_model.dart';
 import '../services/api_service.dart';
+import '../services/recipe_service.dart';
 import '../data/recipe_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RecipeProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
+  final RecipeService _recipeService = RecipeService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   List<Recipe> _recipes = [];
+  List<Recipe> _myRecipes = [];
   String _searchQuery = '';
-  
+
   bool _isLoading = false;
+  bool _isDeleting = false;
+  bool _isLoadingMyRecipes = false;
   String? _errorMessage;
+  String? _deleteErrorMessage;
 
   bool get isLoading => _isLoading;
+  bool get isDeleting => _isDeleting;
+  bool get isLoadingMyRecipes => _isLoadingMyRecipes;
   String? get errorMessage => _errorMessage;
+  String? get deleteErrorMessage => _deleteErrorMessage;
 
   /// Seluruh daftar resep (hasil API)
   List<Recipe> get allRecipes => List.unmodifiable(_recipes);
 
   /// Daftar resep (API sudah melakukan filter pencarian)
   List<Recipe> get recipes => List.unmodifiable(_recipes);
+
+  /// Daftar resep milik user yang sedang login
+  List<Recipe> get myRecipes => List.unmodifiable(_myRecipes);
 
   /// Mengambil data awal
   Future<void> fetchInitialRecipes() async {
@@ -75,7 +87,7 @@ class RecipeProvider with ChangeNotifier {
       }
 
       _recipes = merged;
-      
+
       if (_recipes.isEmpty) {
         _errorMessage = 'Gagal memuat resep. Silakan periksa koneksi Anda.';
       }
@@ -85,6 +97,71 @@ class RecipeProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Mengambil resep milik user tertentu (untuk halaman "Resep Saya")
+  Future<void> fetchMyRecipes(String userId) async {
+    _isLoadingMyRecipes = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      _myRecipes = await _recipeService.fetchMyRecipes(userId);
+    } catch (e) {
+      _errorMessage = e.toString();
+      _myRecipes = [];
+    } finally {
+      _isLoadingMyRecipes = false;
+      notifyListeners();
+    }
+  }
+
+  /// Menghapus resep berdasarkan ID.
+  ///
+  /// [recipeId] — ID dokumen Firestore.
+  /// [ownerUserId] — userId pemilik resep untuk validasi kepemilikan.
+  /// [currentUserId] — userId user yang sedang login.
+  ///
+  /// Returns true jika berhasil, false jika gagal.
+  Future<bool> deleteRecipe({
+    required String recipeId,
+    required String imageUrl,
+    required String ownerUserId,
+    required String currentUserId,
+  }) async {
+    // Validasi kepemilikan
+    if (ownerUserId != currentUserId) {
+      _deleteErrorMessage =
+          'Anda tidak memiliki izin untuk menghapus resep ini.';
+      notifyListeners();
+      return false;
+    }
+
+    _isDeleting = true;
+    _deleteErrorMessage = null;
+    notifyListeners();
+
+    try {
+      await _recipeService.deleteRecipe(recipeId, imageUrl);
+
+      // Hapus dari cache lokal agar UI langsung update
+      _recipes = _recipes.where((r) => r.id != recipeId).toList();
+      _myRecipes = _myRecipes.where((r) => r.id != recipeId).toList();
+
+      _isDeleting = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _deleteErrorMessage = e.toString().replaceAll('Exception: ', '');
+      _isDeleting = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  void clearDeleteError() {
+    _deleteErrorMessage = null;
+    notifyListeners();
   }
 
   /// Memperbarui query dan mengambil ulang data dari API
@@ -132,7 +209,8 @@ class RecipeProvider with ChangeNotifier {
 
       // Jika data lokal pun kosong untuk kata kunci tersebut, tampilkan pesan error
       if (_recipes.isEmpty) {
-        _errorMessage = 'Gagal memuat resep dari internet. Silakan periksa koneksi Anda.';
+        _errorMessage =
+            'Gagal memuat resep dari internet. Silakan periksa koneksi Anda.';
       }
     } finally {
       _isLoading = false;
@@ -143,7 +221,16 @@ class RecipeProvider with ChangeNotifier {
   Recipe findById(String id) {
     return _recipes.firstWhere(
       (recipe) => recipe.id == id,
-      orElse: () => throw Exception('Recipe with ID $id not found in local cache')
+      orElse: () =>
+          throw Exception('Recipe with ID $id not found in local cache'),
     );
+  }
+
+  /// Menambahkan resep ke cache global jika belum ada (untuk navigasi dari My Recipes ke Detail).
+  void addToCache(Recipe recipe) {
+    if (!_recipes.any((r) => r.id == recipe.id)) {
+      _recipes = [..._recipes, recipe];
+      notifyListeners();
+    }
   }
 }

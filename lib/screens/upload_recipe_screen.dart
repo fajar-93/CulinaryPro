@@ -3,8 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/upload_recipe_provider.dart';
-
+import '../providers/recipe_provider.dart';
 class UploadRecipeScreen extends StatefulWidget {
   const UploadRecipeScreen({super.key});
 
@@ -256,6 +257,13 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen>
     if (!mounted) return;
 
     if (success) {
+      // Refresh resep agar langsung muncul di Beranda, Kategori, dan Resep Saya
+      context.read<RecipeProvider>().fetchInitialRecipes();
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        context.read<RecipeProvider>().fetchMyRecipes(currentUser.uid);
+      }
+
       // Show success dialog
       await showDialog(
         context: context,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import '../providers/recipe_provider.dart';
 import '../providers/favorite_provider.dart';
 import '../providers/bookmark_provider.dart';
@@ -23,6 +24,172 @@ class _DetailScreenState extends State<DetailScreen> {
   bool _isTranslated = false;
   bool _isTranslating = false;
   Recipe? _translatedRecipe;
+
+  Future<void> _confirmDelete(BuildContext context, Recipe recipe) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) => AlertDialog(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        icon: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.red.withAlpha(25),
+            shape: BoxShape.circle,
+          ),
+          child:
+              const Icon(Icons.delete_outline, color: Colors.red, size: 32),
+        ),
+        title: const Text(
+          'Hapus Resep',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Apakah Anda yakin ingin menghapus resep ini?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey[300]
+                    : Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey[800]
+                    : Colors.grey[100],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                recipe.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Tindakan ini tidak dapat dibatalkan.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.red[400],
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+        actionsPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(dialogCtx, false),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Batal'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(dialogCtx, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      'Hapus',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    final provider = context.read<RecipeProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    final success = await provider.deleteRecipe(
+      recipeId: recipe.id,
+      imageUrl: recipe.imageUrl,
+      ownerUserId: recipe.userId ?? '',
+      currentUserId: currentUser.uid,
+    );
+
+    if (!context.mounted) return;
+
+    if (success) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white, size: 20),
+              SizedBox(width: 10),
+              Text('Resep berhasil dihapus'),
+            ],
+          ),
+          backgroundColor: Colors.green[700],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      navigator.pop(); // Kembali ke halaman sebelumnya
+    } else {
+      final errMsg = provider.deleteErrorMessage ?? 'Gagal menghapus resep.';
+      messenger.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(child: Text(errMsg)),
+            ],
+          ),
+          backgroundColor: Colors.red[700],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,9 +248,12 @@ class _DetailScreenState extends State<DetailScreen> {
       );
     }
 
+    // Deklarasikan sebagai non-nullable setelah null check
+    final Recipe activeRecipeData = recipe;
+
     final activeRecipe = _isTranslated && _translatedRecipe != null
         ? _translatedRecipe!
-        : recipe;
+        : activeRecipeData;
 
     // Selector memastikan hanya ikon yang rebuild saat state berubah.
     final isFav = context.select<FavoriteProvider, bool>(
@@ -118,7 +288,43 @@ class _DetailScreenState extends State<DetailScreen> {
               ),
             ),
             actions: [
-              // Tombol Terjemahan
+              // ── Tombol Hapus (hanya untuk pemilik resep) ──
+              Builder(
+                builder: (ctx) {
+                  final currentUser = FirebaseAuth.instance.currentUser;
+                  final isOwner = currentUser != null &&
+                      activeRecipeData.userId != null &&
+                      activeRecipeData.userId == currentUser.uid;
+                  if (!isOwner) return const SizedBox.shrink();
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.red.withAlpha(220),
+                      child: ctx.select<RecipeProvider, bool>(
+                                (p) => p.isDeleting)
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.0,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white),
+                              ),
+                            )
+                          : IconButton(
+                              icon: const Icon(
+                                Icons.delete_outline,
+                                color: Colors.white,
+                              ),
+                              tooltip: 'Hapus Resep',
+                              onPressed: () =>
+                                  _confirmDelete(context, activeRecipeData),
+                            ),
+                    ),
+                  );
+                },
+              ),
+              // ── Tombol Terjemahan ──
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: CircleAvatar(

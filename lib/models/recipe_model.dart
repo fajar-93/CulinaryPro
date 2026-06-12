@@ -14,6 +14,10 @@ class Recipe {
   final String category;
   final String? youtubeId;
 
+  /// Pemilik resep (diisi saat upload dari Firestore)
+  final String? userId;
+  final String? userName;
+  final String? userEmail;
 
   Recipe({
     required this.id,
@@ -26,24 +30,30 @@ class Recipe {
     required this.difficulty,
     this.category = 'makan_siang',
     this.youtubeId,
+    this.userId,
+    this.userName,
+    this.userEmail,
   });
 
   factory Recipe.fromFirestore(
-  String id,
-  Map<String, dynamic> data,
-) {
-  return Recipe(
-    id: id,
-    title: data['title'] ?? '',
-    description: data['description'] ?? '',
-    imageUrl: data['imageUrl'] ?? '',
-    ingredients: List<String>.from(data['ingredients'] ?? []),
-    instructions: List<String>.from(data['instructions'] ?? []),
-    durationMinutes: data['durationMinutes'] ?? 0,
-    difficulty: data['difficulty'] ?? 'Menengah',
-    category: data['category'] ?? 'makan_siang',
-  );
-}
+    String id,
+    Map<String, dynamic> data,
+  ) {
+    return Recipe(
+      id: id,
+      title: data['title'] ?? '',
+      description: data['description'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      ingredients: List<String>.from(data['ingredients'] ?? []),
+      instructions: List<String>.from(data['instructions'] ?? []),
+      durationMinutes: data['durationMinutes'] ?? 0,
+      difficulty: data['difficulty'] ?? 'Menengah',
+      category: data['category'] ?? 'makan_siang',
+      userId: data['userId'] as String?,
+      userName: data['userName'] as String?,
+      userEmail: data['userEmail'] as String?,
+    );
+  }
 
   factory Recipe.fromJson(Map<String, dynamic> json) {
     // Extract ingredients and measures

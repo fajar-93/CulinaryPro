@@ -149,6 +149,7 @@ class _HomeTabState extends State<_HomeTab> {
         case 'Makan Siang': return 'makan_siang';
         case 'Makan Malam': return 'makan_malam';
         case 'Camilan': return 'camilan';
+        case 'Minuman': return 'minuman';
         default: return 'all';
       }
     }

@@ -8,6 +8,7 @@ import '../providers/bookmark_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/profile_provider.dart';
 import 'help_center_screen.dart';
+import 'my_recipes_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -284,6 +285,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 child: Column(
                   children: [
+                    // Resep Saya
+                    ListTile(
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withAlpha(30),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.restaurant_menu_rounded,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      title: const Text(
+                        'Resep Saya',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: const Text('Kelola resep yang Anda upload'),
+                      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const MyRecipesScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(height: 1, indent: 20, endIndent: 20),
                     // Toggle Dark Mode
                     Consumer<ThemeProvider>(
                       builder: (context, themeProvider, child) {
