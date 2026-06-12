@@ -476,8 +476,8 @@ class _DetailScreenState extends State<DetailScreen> {
                       context.read<FavoriteProvider>().toggleFavorite(recipe!);
 
                       final message = isFav
-                          ? 'Dihapus dari favorit'
-                          : 'Ditambahkan ke favorit';
+                          ? 'Dihapus dari Suka'
+                          : 'Ditambahkan ke Suka';
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(message),

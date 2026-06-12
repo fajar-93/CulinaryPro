@@ -254,7 +254,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: _buildStatCard(
                       context, 
-                      title: 'Favorit', 
+                      title: 'Suka', 
                       count: favoriteCount, 
                       icon: Icons.favorite_rounded, 
                       color: Colors.red,

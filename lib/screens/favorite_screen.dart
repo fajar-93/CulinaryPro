@@ -28,7 +28,7 @@ class FavoriteScreen extends StatelessWidget {
                   ),
             ),
             Text(
-              'Resep Favorit',
+              'Resep Disukai',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -81,33 +81,43 @@ class FavoriteScreen extends StatelessWidget {
               color: Theme.of(context).brightness == Brightness.dark ? Colors.orange.withAlpha(30) : Colors.orange[50],
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.favorite_border_rounded,
-              size: 60,
-              color: Colors.orange[300],
+            child: const Center(
+              child: Text(
+                '❤️',
+                style: TextStyle(fontSize: 60),
+              ),
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            'Belum Ada Favorit',
+            'Belum Ada Resep Disukai',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).textTheme.titleLarge?.color ?? Colors.black87,
                 ),
           ),
           const SizedBox(height: 10),
-          Text(
-            'Tap ikon ❤️ pada resep\nuntuk menyimpannya di sini',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontSize: 15,
-              height: 1.5,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              'Mulai jelajahi resep dan tekan ikon hati untuk menyimpannya.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 15,
+                height: 1.5,
+              ),
             ),
           ),
           const SizedBox(height: 32),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/',
+                (route) => false,
+              );
+            },
             icon: const Icon(Icons.explore_outlined),
             label: const Text('Jelajahi Resep'),
             style: ElevatedButton.styleFrom(
@@ -118,6 +128,7 @@ class FavoriteScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
+              elevation: 2,
             ),
           ),
         ],
@@ -134,11 +145,11 @@ class FavoriteScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
         ),
         title: const Text(
-          'Hapus Semua Favorit?',
+          'Hapus Semua Suka?',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: const Text(
-          'Semua resep favorit akan dihapus. Tindakan ini tidak dapat dibatalkan.',
+          'Semua daftar suka akan dihapus. Tindakan ini tidak dapat dibatalkan.',
         ),
         actions: [
           TextButton(
@@ -152,7 +163,7 @@ class FavoriteScreen extends StatelessWidget {
               Navigator.of(ctx).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Semua favorit telah dihapus'),
+                  content: Text('Semua daftar suka telah dihapus'),
                   backgroundColor: Colors.red,
                   behavior: SnackBarBehavior.floating,
                 ),

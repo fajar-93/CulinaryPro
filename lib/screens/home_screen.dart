@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Colors.red,
                 child: const Icon(Icons.favorite_rounded),
               ),
-              label: 'Favorit',
+              label: 'Suka',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.bookmark_rounded),
