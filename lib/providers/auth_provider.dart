@@ -90,6 +90,55 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Change Password (reauthenticate + update)
+  Future<bool> changePassword(String currentPassword, String newPassword) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null || user.email == null) {
+        _errorMessage = 'Pengguna tidak ditemukan. Silakan login ulang.';
+        _setLoading(false);
+        return false;
+      }
+
+      // Reauthenticate with current password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // Update to new password
+      await user.updatePassword(newPassword);
+
+      _setLoading(false);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'wrong-password':
+        case 'invalid-credential':
+          _errorMessage = 'Password lama salah. Silakan coba lagi.';
+          break;
+        case 'weak-password':
+          _errorMessage = 'Password baru terlalu lemah. Gunakan minimal 6 karakter.';
+          break;
+        case 'requires-recent-login':
+          _errorMessage = 'Sesi telah kedaluwarsa. Silakan login ulang terlebih dahulu.';
+          break;
+        default:
+          _errorMessage = e.message ?? 'Gagal mengubah password.';
+      }
+      _setLoading(false);
+      return false;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _setLoading(false);
+      return false;
+    }
+  }
+
   // Logout
   Future<void> logout() async {
     _setLoading(true);

@@ -18,6 +18,8 @@ import 'screens/help_center_screen.dart';
 import 'screens/edit_profile_screen.dart';
 import 'screens/my_recipes_screen.dart';
 import 'providers/profile_provider.dart';
+import 'providers/notification_provider.dart';
+import 'providers/language_provider.dart';
 import 'services/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -46,6 +48,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CommentProvider()),
         ChangeNotifierProvider(create: (_) => UploadRecipeProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
       ],
       child: const RecipeApp(),
     ),

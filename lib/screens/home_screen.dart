@@ -9,8 +9,10 @@ import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:firebase_core/firebase_core.dart';
 import 'favorite_screen.dart';
 import 'category_screen.dart';
+import 'category_screen.dart';
 import 'bookmark_screen.dart';
 import 'profile_screen.dart';
+import '../utils/app_translations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -84,9 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
           backgroundColor: Theme.of(context).colorScheme.surface,
           elevation: 0,
           items: [
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.home_rounded),
-              label: 'Beranda',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.home_rounded),
+              label: 'Beranda'.tr(context),
             ),
             BottomNavigationBarItem(
               icon: Badge(
@@ -95,19 +97,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 backgroundColor: Colors.red,
                 child: const Icon(Icons.favorite_rounded),
               ),
-              label: 'Suka',
+              label: 'Suka'.tr(context),
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.bookmark_rounded),
-              label: 'Bookmark',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.bookmark_rounded),
+              label: 'Bookmark'.tr(context),
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.grid_view_rounded),
-              label: 'Kategori',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.grid_view_rounded),
+              label: 'Kategori'.tr(context),
             ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.person_rounded),
-              label: 'Profil',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.person_rounded),
+              label: 'Profil'.tr(context),
             ),
           ],
         ),
@@ -185,7 +187,7 @@ class _HomeTabState extends State<_HomeTab> {
                   ),
             ),
             Text(
-              'Mau masak apa hari ini?',
+              'Mau masak apa hari ini?'.tr(context),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -220,12 +222,12 @@ class _HomeTabState extends State<_HomeTab> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    title: const Text('Keluar dari Akun'),
-                    content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+                    title: Text('Keluar dari Akun'.tr(context, listen: false)),
+                    content: Text('Apakah Anda yakin ingin keluar dari aplikasi?'.tr(context, listen: false)),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(dialogContext),
-                        child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+                        child: Text('Batal'.tr(context, listen: false), style: const TextStyle(color: Colors.grey)),
                       ),
                       TextButton(
                         onPressed: () async {
@@ -234,7 +236,7 @@ class _HomeTabState extends State<_HomeTab> {
                           await context.read<AuthProvider>().logout();
                           navigator.pushNamedAndRemoveUntil('/login', (route) => false);
                         },
-                        child: const Text('Keluar', style: TextStyle(color: Colors.red)),
+                        child: Text('Keluar'.tr(context, listen: false), style: const TextStyle(color: Colors.red)),
                       ),
                     ],
                   ),
@@ -247,7 +249,7 @@ class _HomeTabState extends State<_HomeTab> {
             child: GestureDetector(
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Belum ada notifikasi baru')),
+                  SnackBar(content: Text('Belum ada notifikasi baru'.tr(context, listen: false))),
                 );
               },
               child: CircleAvatar(
@@ -281,7 +283,7 @@ class _HomeTabState extends State<_HomeTab> {
                     color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black87,
                   ),
                   decoration: InputDecoration(
-                    hintText: 'Cari resep favoritmu...',
+                    hintText: 'Cari resep favoritmu...'.tr(context),
                     hintStyle: TextStyle(
                       color: Theme.of(context).brightness == Brightness.dark ? Colors.grey[400] : Colors.grey[600],
                     ),
@@ -317,15 +319,15 @@ class _HomeTabState extends State<_HomeTab> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Resep Terbaru',
+                    'Resep Terbaru'.tr(context),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   TextButton(
                     onPressed: () {},
-                    child: const Text('Lihat Semua',
-                        style: TextStyle(color: Colors.orange)),
+                    child: Text('Lihat Semua'.tr(context),
+                        style: const TextStyle(color: Colors.orange)),
                   ),
                 ],
               ),
@@ -338,13 +340,13 @@ class _HomeTabState extends State<_HomeTab> {
                   : errorMessage != null
                       ? Center(
                           child: Text(
-                            'Gagal memuat resep:\n$errorMessage',
+                            '${'Gagal memuat resep:\n'.tr(context)}$errorMessage',
                             textAlign: TextAlign.center,
                             style: const TextStyle(color: Colors.red),
                           ),
                         )
                       : recipes.isEmpty
-                          ? const Center(child: Text('Resep tidak ditemukan'))
+                          ? Center(child: Text('Resep tidak ditemukan'.tr(context)))
                           : ListView.builder(
                               padding: const EdgeInsets.symmetric(horizontal: 20),
                               itemCount: recipes.length,
@@ -381,7 +383,7 @@ class _HomeTabState extends State<_HomeTab> {
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
-          title,
+          title.tr(context),
           style: TextStyle(
             color: isSelected 
                 ? Colors.white 

@@ -9,6 +9,8 @@ import '../providers/theme_provider.dart';
 import '../providers/profile_provider.dart';
 import 'help_center_screen.dart';
 import 'my_recipes_screen.dart';
+import 'profile/settings_screen.dart';
+import '../utils/app_translations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -56,15 +58,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        title: const Text(
-          'Keluar dari Akun',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          'Keluar dari Akun'.tr(context, listen: false),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-        content: const Text('Apakah Anda yakin ingin keluar dari aplikasi CulinaryPro?'),
+        content: Text('Apakah Anda yakin ingin keluar dari aplikasi CulinaryPro?'.tr(context, listen: false)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            child: Text('Batal'.tr(context, listen: false), style: const TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -80,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: const Text('Keluar'),
+            child: Text('Keluar'.tr(context, listen: false)),
           ),
         ],
       ),
@@ -229,13 +231,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           // Edit Profil Button
-                          IconButton(
+                          /*IconButton(
                             onPressed: () {
                               Navigator.pushNamed(context, '/edit-profile');
                             },
                             icon: const Icon(Icons.edit, color: Colors.white),
                             tooltip: 'Edit Profil',
-                          ),
+                          ),*/
                         ],
                       ),
                     ),
@@ -254,7 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: _buildStatCard(
                       context, 
-                      title: 'Suka', 
+                      title: 'Suka'.tr(context), 
                       count: favoriteCount, 
                       icon: Icons.favorite_rounded, 
                       color: Colors.red,
@@ -264,7 +266,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Expanded(
                     child: _buildStatCard(
                       context, 
-                      title: 'Bookmark', 
+                      title: 'Bookmark'.tr(context), 
                       count: bookmarkCount, 
                       icon: Icons.bookmark_rounded, 
                       color: Colors.blue,
@@ -285,66 +287,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
                 child: Column(
                   children: [
-                    // Resep Saya
                     ListTile(
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withAlpha(30),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.person_outline, color: Colors.blue),
+                      ),
+                      title: Text('Edit Profil'.tr(context), style: const TextStyle(fontWeight: FontWeight.w600)),
+                      trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                      onTap: () => Navigator.pushNamed(context, '/edit-profile'),
+                    ),
+                    const Divider(height: 1, indent: 20, endIndent: 20),
+                    ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                       leading: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.orange.withAlpha(30),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
-                          Icons.restaurant_menu_rounded,
-                          color: Colors.orange,
-                        ),
+                        child: const Icon(Icons.settings_outlined, color: Colors.orange),
                       ),
-                      title: const Text(
-                        'Resep Saya',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: const Text('Kelola resep yang Anda upload'),
+                      title: Text('Pengaturan'.tr(context), style: const TextStyle(fontWeight: FontWeight.w600)),
                       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const MyRecipesScreen(),
-                          ),
+                          MaterialPageRoute(builder: (_) => const SettingsScreen()),
                         );
                       },
                     ),
                     const Divider(height: 1, indent: 20, endIndent: 20),
-                    // Toggle Dark Mode
-                    Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, child) {
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                          leading: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.purple.withAlpha(30),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.dark_mode_rounded, color: Colors.purple),
-                          ),
-                          title: const Text(
-                            'Mode Gelap',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          subtitle: const Text('Ubah visual seluruh aplikasi'),
-                          trailing: Switch(
-                            value: themeProvider.isDarkMode,
-                            onChanged: (val) => themeProvider.toggleTheme(),
-                            activeThumbColor: Colors.orange,
-                            activeTrackColor: Colors.orange.withAlpha(100),
-                          ),
-                        );
-                      },
-                    ),
-                    const Divider(height: 1, indent: 20, endIndent: 20),
-                    // Info Versi
                     ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
                       leading: Container(
@@ -353,78 +330,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.green.withAlpha(30),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.info_outline_rounded, color: Colors.green),
+                        child: const Icon(Icons.history, color: Colors.green),
                       ),
-                      title: const Text(
-                        'Versi Aplikasi',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: const Text('Informasi rilis saat ini'),
-                      trailing: const Text(
-                        'v1.0.0',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-                      ),
-                    ),
-                    const Divider(height: 1, indent: 20, endIndent: 20),
-                    // Bantuan / Pusat Informasi
-                    ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.teal.withAlpha(30),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.help_center_outlined, color: Colors.teal),
-                      ),
-                      title: const Text(
-                        'Pusat Bantuan',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      subtitle: const Text('Butuh bantuan atau panduan?'),
+                      title: Text('Riwayat Aktivitas'.tr(context), style: const TextStyle(fontWeight: FontWeight.w600)),
+                      subtitle: Text('Resep yang Anda unggah'.tr(context)),
                       trailing: const Icon(Icons.chevron_right, color: Colors.grey),
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const HelpCenterScreen(),
-                          ),
+                          MaterialPageRoute(builder: (_) => const MyRecipesScreen()),
                         );
                       },
                     ),
                   ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // ─── Tombol Keluar / Logout ─────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: () => _showLogoutDialog(context),
-                  icon: const Icon(Icons.logout_rounded),
-                  label: const Text(
-                    'KELUAR AKUN',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[50] ?? const Color(0xFFFFEBEE),
-                    foregroundColor: Colors.red[700] ?? Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(color: Colors.red[200] ?? Colors.redAccent),
-                    ),
-                    elevation: 0,
-                  ),
                 ),
               ),
             ),

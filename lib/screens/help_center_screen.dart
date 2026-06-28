@@ -21,7 +21,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
   final List<Map<String, String>> _faqs = [
     {
       'question': 'Bagaimana cara menyimpan resep favorit?',
-      'answer': 'Anda dapat menekan ikon hati (love) pada halaman detail resep atau di card resep untuk menyimpannya ke daftar favorit Anda.',
+      'answer': 'Anda dapat menekan ikon hati (love) pada halaman detail resep atau di card resep untuk menyimpannya ke daftar suka Anda.',
     },
     {
       'question': 'Bagaimana cara mengubah password?',
@@ -33,7 +33,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
     },
     {
       'question': 'Bagaimana cara mengunggah resep?',
-      'answer': 'Saat ini fitur unggah resep pengguna sedang dalam pengembangan. Silakan tunggu update aplikasi selanjutnya.',
+      'answer': 'Untuk mengunggah resep, pengguna cukup membuka menu Upload Resep, mengisi informasi resep seperti nama, bahan, langkah memasak, dan foto, kemudian menekan tombol Unggah agar resep dapat dipublikasikan dan dilihat oleh pengguna lain.',
     },
     {
       'question': 'Bagaimana cara menghubungi admin?',
@@ -209,7 +209,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                     context: context,
                     icon: Icons.email_outlined,
                     title: 'Email Support',
-                    subtitle: 'support@culinarypro.com',
+                    subtitle: 'rahmadfajar213@gmail.com',
                     color: Colors.blue,
                   ),
                   const SizedBox(height: 12),
