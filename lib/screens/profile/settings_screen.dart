@@ -8,7 +8,7 @@ import 'security_screen.dart';
 import 'notification_screen.dart';
 import 'theme_screen.dart';
 import 'language_screen.dart';
-import 'faq_screen.dart';
+import '../help_center_screen.dart';
 import 'about_screen.dart';
 import '../../utils/app_translations.dart';
 
@@ -115,7 +115,7 @@ class SettingsScreen extends StatelessWidget {
                       icon: Icons.help_outline,
                       iconColor: Colors.cyan,
                       title: 'Bantuan & FAQ'.tr(context),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FAQScreen())),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpCenterScreen())),
                     ),
                     const Divider(height: 1, indent: 20, endIndent: 20),
                     SettingsTile(
