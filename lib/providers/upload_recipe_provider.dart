@@ -4,14 +4,19 @@ import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import '../services/cloudinary_service.dart';
 
 class UploadRecipeProvider with ChangeNotifier {
   final ImagePicker _picker = ImagePicker();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Uint8List? _imageBytes;
+  File? _imageFile;
   String? _imageName;
+  File? _videoFile;
+  String? _videoName;
   bool _isUploading = false;
   double _uploadProgress = 0.0;
   String? _errorMessage;
@@ -25,6 +30,9 @@ class UploadRecipeProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
   String? get successMessage => _successMessage;
   bool get hasImage => _imageBytes != null;
+  File? get videoFile => _videoFile;
+  String? get videoName => _videoName;
+  bool get hasVideo => _videoFile != null;
 
   /// Pilih gambar dari kamera atau galeri
   Future<void> pickImage(ImageSource source) async {
@@ -39,6 +47,7 @@ class UploadRecipeProvider with ChangeNotifier {
 
       if (pickedFile != null) {
         _imageBytes = await pickedFile.readAsBytes();
+        _imageFile = File(pickedFile.path);
         _imageName = pickedFile.name;
         notifyListeners();
       }
@@ -51,6 +60,49 @@ class UploadRecipeProvider with ChangeNotifier {
   /// Hapus gambar yang sudah dipilih
   void removeImage() {
     _imageBytes = null;
+    _imageFile = null;
+    _imageName = null;
+    notifyListeners();
+  }
+
+  /// Pilih video dari galeri
+  Future<void> pickVideo() async {
+    try {
+      _clearMessages();
+      final XFile? pickedFile = await _picker.pickVideo(
+        source: ImageSource.gallery,
+      );
+
+      if (pickedFile != null) {
+        final file = File(pickedFile.path);
+        final fileSize = await file.length();
+        if (fileSize > 50 * 1024 * 1024) {
+          _errorMessage = 'Ukuran video maksimal 50 MB';
+          notifyListeners();
+          return;
+        }
+
+        final ext = pickedFile.path.split('.').last.toLowerCase();
+        if (ext != 'mp4' && ext != 'mov' && ext != 'avi') {
+          _errorMessage = 'Format video tidak didukung. Gunakan mp4, mov, atau avi.';
+          notifyListeners();
+          return;
+        }
+
+        _videoFile = file;
+        _videoName = pickedFile.name;
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = 'Gagal memilih video: ${e.toString()}';
+      notifyListeners();
+    }
+  }
+
+  /// Hapus video yang sudah dipilih
+  void removeVideo() {
+    _videoFile = null;
+    _videoName = null;
     notifyListeners();
   }
 
@@ -92,10 +144,23 @@ class UploadRecipeProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // 1. Upload gambar ke Firebase Storage
-      final imageUrl = await _uploadToCloudinary(_imageBytes!);
+      final cloudinary = CloudinaryService();
+      
+      // 1. Upload gambar ke Cloudinary
+      if (_imageFile == null) {
+        throw Exception("File gambar tidak ditemukan");
+      }
+      final imageUrl = await cloudinary.uploadImage(_imageFile!);
+      _uploadProgress = 0.4;
+      notifyListeners();
 
-      // 2. Simpan data resep ke Firestore
+      String? videoUrl;
+      // 2. Upload video ke Cloudinary (opsional)
+      if (_videoFile != null) {
+        videoUrl = await cloudinary.uploadVideo(_videoFile!);
+      }
+
+      // 3. Simpan data resep ke Firestore
       _uploadProgress = 0.8;
       notifyListeners();
 
@@ -109,6 +174,7 @@ class UploadRecipeProvider with ChangeNotifier {
         'title': title.trim(),
         'description': description.trim(),
         'imageUrl': imageUrl,
+        'videoUrl': videoUrl,
         'ingredients': filteredIngredients,
         'instructions': filteredInstructions,
         'durationMinutes': durationMinutes,
@@ -136,51 +202,15 @@ class UploadRecipeProvider with ChangeNotifier {
     }
   }
 
-  /// Upload gambar ke Firebase Storage dan return download URL
-  Future<String> _uploadToCloudinary(
-  Uint8List imageBytes,
-  ) async {
-    const cloudName = 'dkta7ujvt';
-    const uploadPreset = 'recipe_upload';
-
-    final uri = Uri.parse(
-      'https://api.cloudinary.com/v1_1/$cloudName/image/upload',
-    );
-
-    final request = http.MultipartRequest(
-      'POST',
-      uri,
-    );
-
-    request.fields['upload_preset'] = uploadPreset;
-
-    request.files.add(
-      http.MultipartFile.fromBytes(
-        'file',
-        imageBytes,
-        filename: 'recipe.jpg',
-      ),
-    );
-
-    final response = await request.send();
-
-    final responseData =
-        await response.stream.bytesToString();
-
-    final data = jsonDecode(responseData);
-
-    if (response.statusCode == 200) {
-      return data['secure_url'];
-    } else {
-      throw Exception(data['error']['message']);
-    }
-  }
-   
+  // _uploadToCloudinary removed in favor of CloudinaryService
 
   /// Reset semua state form
   void resetForm() {
     _imageBytes = null;
+    _imageFile = null;
     _imageName = null;
+    _videoFile = null;
+    _videoName = null;
     _isUploading = false;
     _uploadProgress = 0.0;
     _errorMessage = null;

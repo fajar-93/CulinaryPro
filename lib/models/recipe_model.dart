@@ -13,6 +13,7 @@ class Recipe {
   /// Nilai valid: 'all', 'sarapan', 'makan_siang', 'makan_malam', 'camilan', 'minuman'
   final String category;
   final String? youtubeId;
+  final String? videoUrl;
 
   /// Pemilik resep (diisi saat upload dari Firestore)
   final String? userId;
@@ -30,6 +31,7 @@ class Recipe {
     required this.difficulty,
     this.category = 'makan_siang',
     this.youtubeId,
+    this.videoUrl,
     this.userId,
     this.userName,
     this.userEmail,
@@ -49,6 +51,7 @@ class Recipe {
       durationMinutes: data['durationMinutes'] ?? 0,
       difficulty: data['difficulty'] ?? 'Menengah',
       category: data['category'] ?? 'makan_siang',
+      videoUrl: data['videoUrl'] as String?,
       userId: data['userId'] as String?,
       userName: data['userName'] as String?,
       userEmail: data['userEmail'] as String?,
@@ -112,6 +115,7 @@ class Recipe {
       difficulty: 'Menengah', // Default
       category: mappedCategory,
       youtubeId: ytId,
+      videoUrl: null,
     );
   }
 }

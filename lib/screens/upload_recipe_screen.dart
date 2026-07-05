@@ -349,6 +349,18 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen>
                     _buildImagePicker(provider, isDark),
                     const SizedBox(height: 24),
 
+                    // ── Video Picker ──
+                    _buildVideoPicker(provider, isDark),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Video tutorial bersifat opsional. Anda tetap dapat mengunggah resep tanpa video.',
+                      style: GoogleFonts.outfit(
+                        fontSize: 12,
+                        color: isDark ? Colors.white54 : Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
                     // ── Nama Resep ──
                     _buildSectionLabel('Nama Resep', Icons.restaurant_menu),
                     const SizedBox(height: 8),
@@ -604,6 +616,116 @@ class _UploadRecipeScreenState extends State<UploadRecipeScreen>
                       style: GoogleFonts.outfit(
                         fontSize: 13,
                         color: isDark ? Colors.white38 : Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  // ─── Video Picker Widget ───────────────────────────────────────────────────
+
+  Widget _buildVideoPicker(UploadRecipeProvider provider, bool isDark) {
+    return GestureDetector(
+      onTap: provider.isUploading ? null : () => provider.pickVideo(),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeInOut,
+        height: 120,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: provider.hasVideo
+                ? Colors.orange.withAlpha(120)
+                : (isDark ? Colors.grey[700]! : Colors.grey[300]!),
+            width: provider.hasVideo ? 2 : 1.5,
+            strokeAlign: BorderSide.strokeAlignInside,
+          ),
+          boxShadow: provider.hasVideo
+              ? [
+                  BoxShadow(
+                    color: Colors.orange.withAlpha(30),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
+              : null,
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: provider.hasVideo
+              ? Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Container(
+                      color: isDark ? Colors.grey[850] : Colors.grey[200],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.video_file_rounded,
+                              size: 40, color: Colors.orange),
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              provider.videoName ?? 'Video terpilih',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.outfit(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Remove button
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: GestureDetector(
+                        onTap: provider.removeVideo,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withAlpha(130),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.close_rounded,
+                              color: Colors.white, size: 20),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withAlpha(25),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.videocam_rounded,
+                        size: 32,
+                        color: Colors.orange,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Upload Video (Opsional)',
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white70 : Colors.grey[700],
                       ),
                     ),
                   ],

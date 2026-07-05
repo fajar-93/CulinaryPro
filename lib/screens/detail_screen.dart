@@ -10,6 +10,7 @@ import '../services/translation_service.dart';
 import '../providers/comment_provider.dart';
 import '../models/comment_model.dart';
 import '../widgets/comment_sheet.dart';
+import '../widgets/custom_video_player.dart';
 
 class DetailScreen extends StatefulWidget {
   const DetailScreen({super.key});
@@ -735,6 +736,51 @@ class _DetailScreenState extends State<DetailScreen> {
                         );
                       },
                     ),
+
+                    const SizedBox(height: 30),
+                    // Video Tutorial
+                    const Text(
+                      'Video Tutorial',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    if (activeRecipe.videoUrl != null && activeRecipe.videoUrl!.isNotEmpty)
+                      CustomVideoPlayer(videoUrl: activeRecipe.videoUrl!)
+                    else
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.grey[850]
+                              : Colors.grey[200],
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            color: Theme.of(context).brightness == Brightness.dark
+                                ? Colors.grey[700]!
+                                : Colors.grey[300]!,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.videocam_off, color: Colors.grey, size: 30),
+                            const SizedBox(width: 15),
+                            Expanded(
+                              child: Text(
+                                'Tidak ada video tutorial untuk resep ini.',
+                                style: TextStyle(
+                                  color: Theme.of(context).brightness == Brightness.dark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[700],
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
 
                     const SizedBox(height: 30),
                     // Ulasan & Rating

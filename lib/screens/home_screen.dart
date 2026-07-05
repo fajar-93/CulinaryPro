@@ -9,7 +9,6 @@ import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:firebase_core/firebase_core.dart';
 import 'favorite_screen.dart';
 import 'category_screen.dart';
-import 'category_screen.dart';
 import 'bookmark_screen.dart';
 import 'profile_screen.dart';
 import '../utils/app_translations.dart';
